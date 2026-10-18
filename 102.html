@@ -1,0 +1,1425 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FFFFFF">
+  <meta name="description" content="野友局 C 端潮流社交原型：发现同好、加入同城活动、认识新朋友。">
+  <title>野友局 · 找到一起玩的人</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --forest: #3B542C;
+      --leaf: #709F5B;
+      --sage: #8DAB97;
+      --mint: #5DC68E;
+      --aqua: #6FD3AB;
+      --white: #FFFFFF;
+      --ink: #343C35;
+      --muted: #797979;
+      --line: #E9EEE9;
+      --soft: #F5F8F5;
+      --pale-green: #EAF4EE;
+      --gradient: linear-gradient(125deg, #5DC68E, #6FD3AB);
+      font-family: "Microsoft YaHei", "Noto Sans CJK SC", "PingFang SC", sans-serif;
+      color: var(--ink);
+      background: #F5F7F4;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+    * { box-sizing: border-box; }
+    body { min-width: 320px; min-height: 100vh; margin: 0; background: radial-gradient(circle at 14% 12%, #E8F1E9, transparent 27rem), #F5F7F4; }
+    button, input, textarea { color: inherit; font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
+    .studio { width: min(1220px,100%); min-height: 100vh; display: grid; grid-template-rows: 82px auto 42px; margin: 0 auto; padding: 0 28px; }
+    .studio-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(59,84,44,.12); }
+    .brand-lockup { display: flex; align-items: center; gap: 11px; }
+    .brand-mark { width: 39px; height: 39px; display: grid; place-items: center; border-radius: 14px; background: var(--forest); color: white; box-shadow: 0 6px 16px rgba(59,84,44,.19); }
+    .brand-mark svg { width: 21px; height: 21px; }
+    .brand-name { font-size: 17px; font-weight: 800; letter-spacing: -.5px; }
+    .brand-caption { margin-top: 2px; color: var(--muted); font-size: 10px; }
+    .header-meta { display: flex; gap: 8px; align-items: center; }
+    .meta-pill { padding: 8px 12px; border: 1px solid #E2EAE2; border-radius: 20px; background: rgba(255,255,255,.72); color: var(--forest); font-size: 9px; }
+    .stage { display: grid; grid-template-columns: minmax(190px,1fr) 418px minmax(190px,1fr); align-items: center; justify-items: center; gap: clamp(24px,5vw,76px); padding: 20px 0; }
+    .side-note { width: min(100%,225px); color: var(--muted); }
+    .note-kicker { color: var(--leaf); font-size: 9px; font-weight: 800; letter-spacing: 1.7px; }
+    .note-title { margin: 14px 0 9px; color: var(--forest); font-size: 24px; font-weight: 800; line-height: 1.4; letter-spacing: -.8px; }
+    .note-copy { margin: 0; font-size: 11px; line-height: 1.9; }
+    .note-divider { height: 1px; margin: 21px 0; background: var(--line); }
+    .journey { display: grid; gap: 14px; }
+    .journey-item { display: grid; grid-template-columns: 25px 1fr; gap: 10px; align-items: start; }
+    .journey-number { width: 23px; height: 23px; display: grid; place-items: center; border-radius: 8px; background: var(--pale-green); color: var(--forest); font-size: 9px; font-weight: 800; }
+    .journey-item:nth-child(2) .journey-number { background: #E0F5E9; color: #43825D; }
+    .journey-item strong { display: block; margin: 2px 0 4px; color: #414C42; font-size: 11px; }
+    .journey-item small { font-size: 9px; line-height: 1.65; }
+    .swatches { display: flex; gap: 8px; margin-top: 13px; }
+    .swatch { width: 25px; height: 25px; border: 2px solid white; border-radius: 9px; box-shadow: 0 2px 5px rgba(48,54,56,.1); }
+    .swatch.forest { background: #3B542C; }.swatch.leaf { background: #709F5B; }.swatch.sage { background: #8DAB97; }.swatch.mint { background: #5DC68E; }.swatch.aqua { background: #6FD3AB; }
+    .device { position: relative; width: 418px; height: auto; aspect-ratio: 418 / 890; border: 8px solid transparent; border-radius: 55px; background: linear-gradient(145deg,#929A94 0%,#444B47 18%,#242A27 56%,#778078 100%) border-box; box-shadow: 0 30px 90px rgba(43,60,43,.2),0 5px 18px rgba(43,60,43,.1),inset 0 0 0 1px rgba(255,255,255,.3); isolation: isolate; }
+    .device::before { position: absolute; z-index: -1; top: 145px; left: -11px; width: 3px; height: 36px; border-radius: 3px 0 0 3px; background: linear-gradient(90deg,#747A77,#292E30); box-shadow: 0 52px 0 #555B59,0 96px 0 #555B59; content: ""; }
+    .device::after { position: absolute; z-index: -1; top: 202px; right: -11px; width: 3px; height: 76px; border-radius: 0 3px 3px 0; background: linear-gradient(90deg,#292E30,#747A77); content: ""; }
+    .app { position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: 43px; background: var(--white); }
+    .app::before { position: absolute; z-index: 21; top: 8px; left: 50%; width: 118px; height: 31px; border-radius: 18px; background: linear-gradient(180deg,#050607,#111416); box-shadow: inset 0 1px 2px rgba(255,255,255,.08),0 1px 1px rgba(255,255,255,.08); content: ""; transform: translateX(-50%); pointer-events: none; }
+    .app::after { position: absolute; z-index: 22; top: 18px; left: calc(50% + 34px); width: 8px; height: 8px; border: 1px solid #1C252A; border-radius: 50%; background: radial-gradient(circle at 35% 35%,#526877,#11171B 70%); content: ""; pointer-events: none; }
+    .statusbar { height: 34px; display: flex; align-items: center; justify-content: space-between; padding: 4px 18px 0; font-size: 10px; font-weight: 700; }
+    .status-icons { display: flex; align-items: center; gap: 5px; }.signal { display: flex; align-items: end; gap: 2px; height: 10px; }.signal i { width: 2px; border-radius: 2px; background: var(--ink); }.signal i:nth-child(1){height:3px}.signal i:nth-child(2){height:5px}.signal i:nth-child(3){height:7px}.signal i:nth-child(4){height:9px}
+    .battery { position: relative; width: 17px; height: 9px; border: 1px solid var(--ink); border-radius: 3px; }.battery::before { position:absolute;inset:2px 3px 2px 2px;border-radius:1px;background:var(--ink);content:"" }.battery::after { position:absolute;top:2px;right:-3px;width:2px;height:4px;border-radius:0 2px 2px 0;background:var(--ink);content:"" }
+    .app-topbar { position: relative; z-index: 4; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border-bottom: 1px solid #F0F2EF; background: rgba(255,255,255,.94); }
+    .topbar-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .top-title { font-size: 18px; font-weight: 800; letter-spacing: -.5px; }.top-title span { color: var(--mint); }.top-subtitle { margin-top: 2px; color: var(--muted); font-size: 8px; }
+    .top-actions { display: flex; gap: 7px; }.icon-button { position: relative; width: 33px; height: 33px; display: grid; place-items: center; border: 0; border-radius: 50%; background: #F4F7F3; color: var(--forest); transition: transform .2s,background .2s; }.icon-button:hover { transform: translateY(-2px); background: #EAF4EE; }.icon-button svg,.nav-button svg,.action-button svg,.search-icon svg,.modal-close svg { width: 17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round }
+    .notification-dot { position: absolute; top: 6px; right: 6px; width: 6px; height: 6px; border: 1px solid white; border-radius: 50%; background: var(--mint); }
+    .scroll-area { position: absolute; inset: 90px 0 75px; overflow: auto; padding: 0 17px 23px; scrollbar-width:none; overscroll-behavior:contain; }.scroll-area::-webkit-scrollbar{display:none}
+    .screen { display:none; }.screen.active { display:block; animation: screen-in .32s ease both; }@keyframes screen-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+    .welcome-row { display:flex;align-items:center;justify-content:space-between;padding:15px 0 11px }.welcome-row small{color:var(--muted);font-size:9px}.welcome-row h1{margin:4px 0 0;color:var(--forest);font-size:18px;font-weight:800;letter-spacing:-.6px}
+    .location-pill{display:flex;align-items:center;gap:4px;padding:7px 9px;border:1px solid #E7EEE7;border-radius:14px;background:#fff;color:var(--forest);font-size:8px}
+    .search-bar{height:38px;display:flex;align-items:center;gap:8px;padding:0 11px;border:1px solid #E9EEE9;border-radius:12px;background:#F8FAF8;color:#929792;font-size:9px}.search-icon{display:grid;place-items:center;color:var(--leaf)}
+    .story-strip{display:flex;gap:12px;overflow-x:auto;margin:15px -17px 16px;padding:0 17px 2px;scrollbar-width:none}.story-strip::-webkit-scrollbar,.topic-strip::-webkit-scrollbar{display:none}
+    .story{flex:0 0 49px;padding:0;border:0;background:transparent;text-align:center;color:var(--muted);font-size:8px}.story-ring{width:45px;height:45px;display:grid;place-items:center;overflow:hidden;margin:0 auto 5px;border:2px solid white;border-radius:50%;background:linear-gradient(135deg,#709F5B,#5DC68E);box-shadow:0 0 0 1.5px #8DAB97,0 3px 8px rgba(59,84,44,.12);color:#fff;font-size:13px;font-weight:800;transition:transform .2s}.story-ring img{width:100%;height:100%;object-fit:cover;border-radius:50%}.story:hover .story-ring{transform:scale(1.07)}.story.add .story-ring{border:1.5px dashed #709F5B;background:#F1F7F2;color:#3B542C;font-size:20px}
+    .section-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:15px 0 9px}.section-heading h2{margin:0;color:#343C35;font-size:14px;font-weight:800;letter-spacing:-.3px}.section-heading small{color:var(--muted);font-size:8px}.text-link{padding:0;border:0;background:transparent;color:var(--leaf);font-size:9px}
+    .hero-card{position:relative;height:174px;overflow:hidden;border-radius:17px;background:#506F50;box-shadow:0 7px 19px rgba(48,73,47,.12);isolation:isolate}.hero-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .7s}.hero-card:hover img{transform:scale(1.045)}.hero-card::after{position:absolute;inset:0;background:linear-gradient(90deg,rgba(31,56,35,.7),rgba(31,56,35,.04) 100%),linear-gradient(0deg,rgba(31,56,35,.28),transparent 60%);content:""}.hero-copy{position:absolute;z-index:1;right:14px;bottom:14px;left:15px;color:white}.hero-eyebrow{font-size:8px;font-weight:700;letter-spacing:1px;opacity:.93}.hero-copy h2{margin:5px 0;font-size:19px;font-weight:800;letter-spacing:-.5px}.hero-copy p{margin:0;font-size:8px;opacity:.94}.hero-cta{position:absolute;z-index:1;top:12px;right:12px;padding:7px 9px;border:1px solid rgba(255,255,255,.42);border-radius:13px;background:rgba(255,255,255,.2);color:white;font-size:8px;backdrop-filter:blur(8px)}
+    .topic-strip{display:flex;gap:7px;overflow:auto;margin:13px -17px 15px;padding:0 17px 2px;scrollbar-width:none}.topic-chip{flex:0 0 auto;padding:7px 11px;border:1px solid transparent;border-radius:15px;background:#F2F5F2;color:#707970;font-size:8px;transition:.2s}.topic-chip.active{background:var(--forest);color:white}.topic-chip:hover{transform:translateY(-1px)}
+    .event-card{overflow:hidden;margin:0 0 12px;border:1px solid #E9EEE9;border-radius:16px;background:white;box-shadow:0 4px 13px rgba(45,62,45,.045);animation:card-in .3s ease both}@keyframes card-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+    .card-cover{position:relative;height:151px;overflow:hidden;background:#B1C3AF}.card-cover img{width:100%;height:100%;object-fit:cover;transition:transform .5s}.event-card:hover .card-cover img{transform:scale(1.04)}.cover-badge{position:absolute;top:10px;left:10px;padding:6px 8px;border:1px solid rgba(255,255,255,.6);border-radius:11px;background:rgba(255,255,255,.88);color:var(--forest);font-size:8px;font-weight:700;backdrop-filter:blur(8px)}.cover-save{position:absolute;top:9px;right:9px;width:28px;height:28px;display:grid;place-items:center;border:0;border-radius:50%;background:rgba(255,255,255,.9);color:var(--forest)}.cover-save svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.6}.cover-caption{position:absolute;right:11px;bottom:10px;left:12px;color:white;text-shadow:0 1px 5px rgba(0,0,0,.3)}.cover-caption strong{display:block;font-size:15px;font-weight:800}.cover-caption small{font-size:8px}
+    .card-content{padding:11px 12px 12px}.host-row{display:flex;align-items:center;gap:7px}.avatar{width:26px;height:26px;flex:0 0 26px;display:grid;place-items:center;overflow:hidden;border-radius:50%;background:linear-gradient(135deg,#8DAB97,#5DC68E);color:white;font-size:9px;font-weight:800}.avatar img{width:100%;height:100%;object-fit:cover}.host-copy{min-width:0;flex:1}.host-copy strong{display:block;font-size:9px}.host-copy small{display:block;margin-top:2px;color:var(--muted);font-size:7px}.join-button{min-height:29px;padding:0 11px;border:0;border-radius:11px;background:var(--forest);color:white;font-size:8px;font-weight:700;transition:.18s}.join-button:hover{transform:translateY(-1px);background:var(--leaf)}.join-button.joined{background:#EAF4EE;color:var(--forest)}
+    .event-meta{display:flex;gap:11px;margin-top:9px;padding-top:8px;border-top:1px solid #F0F2EF;color:#6F766F;font-size:8px}.event-meta span{display:inline-flex;align-items:center;gap:4px}.event-meta b{color:var(--leaf);font-weight:700}.social-card{margin-bottom:12px;padding:12px;border:1px solid #E9EEE9;border-radius:16px;background:#fff;box-shadow:0 4px 13px rgba(45,62,45,.04)}.social-head{display:flex;align-items:center;gap:8px}.social-copy{flex:1}.social-copy strong{display:block;font-size:9px}.social-copy small{display:block;margin-top:2px;color:var(--muted);font-size:7px}.follow-button{padding:5px 9px;border:1px solid #CDE0D0;border-radius:10px;background:white;color:var(--leaf);font-size:8px}.follow-button.following{background:#EAF4EE;color:var(--forest)}.social-text{margin:9px 0;color:#5F665F;font-size:9px;line-height:1.7}.social-image{width:100%;height:145px;object-fit:cover;border-radius:11px}.social-actions{display:flex;gap:16px;margin-top:9px}.action-button{display:inline-flex;align-items:center;gap:4px;padding:2px 0;border:0;background:transparent;color:#797979;font-size:8px;transition:transform .18s,color .18s}.action-button:hover{transform:scale(1.06)}.action-button.liked{color:#4A9A68}.action-button.liked svg{fill:rgba(93,198,142,.22)}.action-button svg{width:15px;height:15px}
+    .empty-note{display:none;padding:22px 14px;border:1px dashed #D4E0D6;border-radius:14px;color:var(--muted);font-size:9px;text-align:center}
+    .city-banner{position:relative;height:185px;overflow:hidden;border:1px solid #E7EEE7;border-radius:17px;background:linear-gradient(140deg,#ECF4EC,#D8EADD)}.map-grid{position:absolute;inset:-25px;background:repeating-linear-gradient(28deg,transparent 0 28px,rgba(112,159,91,.13) 29px 32px,transparent 33px 62px),repeating-linear-gradient(112deg,transparent 0 48px,rgba(112,159,91,.11) 49px 52px,transparent 53px 86px)}.map-river{position:absolute;top:62px;left:-18px;width:430px;height:44px;border:7px solid rgba(111,211,171,.45);border-right:0;border-left:0;border-radius:50%;transform:rotate(-18deg)}.map-label{position:absolute;top:12px;left:13px;padding:7px 9px;border-radius:11px;background:white;color:var(--forest);font-size:8px;font-weight:700}.map-pin{position:absolute;top:63px;left:76px;width:33px;height:33px;border:3px solid white;border-radius:50% 50% 50% 5px;background:var(--forest);color:white;font-size:11px;box-shadow:0 3px 9px rgba(59,84,44,.22);transform:rotate(-45deg)}.map-pin span{display:block;transform:rotate(45deg)}.map-pin.p2{top:112px;left:213px;background:var(--mint)}.map-pin.p3{top:49px;left:293px;background:var(--leaf)}.map-note{position:absolute;right:12px;bottom:11px;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.9);color:var(--forest);font-size:7px}
+    .chat-row{display:flex;align-items:center;gap:10px;padding:13px 2px;border-bottom:1px solid #EDF0EC;cursor:pointer}.chat-row:last-child{border-bottom:0}.chat-avatar{position:relative;width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;overflow:hidden;border-radius:50%;background:linear-gradient(135deg,#8DAB97,#5DC68E);color:white;font-size:13px;font-weight:800}.chat-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}.online-dot{position:absolute;right:0;bottom:0;width:11px;height:11px;border:2px solid white;border-radius:50%;background:#5DC68E}.chat-copy{min-width:0;flex:1}.chat-copy strong{display:block;font-size:10px}.chat-copy small{display:block;overflow:hidden;margin-top:4px;color:var(--muted);font-size:8px;text-overflow:ellipsis;white-space:nowrap}.chat-time{align-self:flex-start;color:#929792;font-size:7px}.unread{display:inline-grid;min-width:16px;height:16px;place-items:center;margin-top:6px;padding:0 4px;border-radius:9px;background:var(--mint);color:white;font-size:7px}
+    .profile-cover{position:relative;height:142px;overflow:hidden;margin:0 -17px;background:#A6BEAA}.profile-cover img{width:100%;height:100%;object-fit:cover}.profile-cover::after{position:absolute;inset:35% 0 0;background:linear-gradient(transparent,rgba(255,255,255,.95));content:""}.profile-avatar{position:relative;width:63px;height:63px;display:grid;place-items:center;overflow:hidden;margin-top:-33px;border:4px solid white;border-radius:50%;background:var(--forest);color:white;font-size:21px;font-weight:800}.profile-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}.profile-name{display:flex;align-items:center;gap:7px;margin-top:8px}.profile-name strong{font-size:17px;font-weight:800}.profile-badge{padding:4px 7px;border-radius:9px;background:#EAF4EE;color:var(--forest);font-size:7px}.profile-bio{margin:6px 0 13px;color:var(--muted);font-size:8px;line-height:1.7}.profile-stats{display:flex;gap:24px;margin-bottom:14px}.profile-stats strong{display:block;font-size:12px}.profile-stats small{display:block;margin-top:2px;color:var(--muted);font-size:7px}
+
+    /* ===== 底部导航：5 格均分 ===== */
+    .bottom-nav{position:absolute;z-index:5;right:0;bottom:0;left:0;height:75px;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;justify-items:center;padding:5px 6px 10px;border-top:1px solid #EBEFEB;background:rgba(255,255,255,.96);backdrop-filter:blur(16px)}
+    .nav-button{width:52px;height:50px;display:grid;align-content:center;justify-items:center;gap:4px;border:0;border-radius:13px;background:transparent;color:#989D98;font-size:8px;transition:color .18s,transform .18s}
+    .nav-button:hover{transform:translateY(-2px)}
+    .nav-button.active{color:var(--forest)}
+    .nav-button.active svg{stroke-width:2}
+    .nav-create{width:44px;height:44px;border-radius:15px;background:var(--forest);color:white;box-shadow:0 6px 14px rgba(59,84,44,.25);transform:translateY(-14px)}
+    .nav-create:hover{transform:translateY(-16px)}
+    .nav-create svg{width:20px;height:20px}
+
+    .modal-backdrop{position:absolute;z-index:15;inset:0;display:grid;align-items:end;padding-top:50px;background:rgba(25,41,29,.34);opacity:0;transition:opacity .2s}.modal-backdrop[hidden]{display:none}.modal-backdrop.open{opacity:1}.sheet{width:100%;max-height:93%;overflow:auto;padding:10px 18px calc(20px + env(safe-area-inset-bottom));border-radius:23px 23px 0 0;background:white;transform:translateY(24px);transition:transform .27s cubic-bezier(.2,.8,.2,1);scrollbar-width:none}.modal-backdrop.open .sheet{transform:translateY(0)}.sheet-handle{width:36px;height:4px;margin:0 auto 13px;border-radius:4px;background:#DFE4DF}.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.sheet-head h2{margin:0;font-size:16px;font-weight:800}.modal-close{width:29px;height:29px;display:grid;place-items:center;border:0;border-radius:50%;background:#F2F5F2;color:#667066}.event-preview{position:relative;height:134px;overflow:hidden;border-radius:13px;background:#DFE9DF}.event-preview img{width:100%;height:100%;object-fit:cover}.event-preview span{position:absolute;bottom:9px;left:10px;color:white;font-size:11px;font-weight:800;text-shadow:0 1px 5px #333}.field-label{display:block;margin:13px 0 6px;color:#526052;font-size:9px;font-weight:700}.caption-input{width:100%;min-height:75px;resize:vertical;padding:10px;border:1px solid #E4EAE4;border-radius:11px;background:#FAFCFA;font-size:9px;line-height:1.7}.sheet .primary-button{width:100%;margin-top:13px}.primary-button{min-height:39px;padding:0 14px;border:0;border-radius:12px;background:var(--forest);color:white;font-size:9px;font-weight:700;transition:transform .18s,background .18s}.primary-button:hover{transform:translateY(-1px);background:var(--leaf)}.date-field{width:100%;height:38px;padding:0 10px;border:1px solid #E4EAE4;border-radius:10px;background:#FAFCFA;font-size:9px}
+    .toast{position:absolute;z-index:30;right:50%;bottom:88px;max-width:calc(100% - 32px);padding:10px 14px;border-radius:18px;background:rgba(49,61,50,.93);color:white;font-size:9px;white-space:nowrap;opacity:0;pointer-events:none;transform:translate(50%,8px);transition:opacity .2s,transform .2s}.toast.show{opacity:1;transform:translate(50%,0)}.sparkle{position:fixed;z-index:25;width:7px;height:7px;border-radius:3px;background:var(--mint);pointer-events:none;animation:sparkle .7s ease-out forwards}@keyframes sparkle{to{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(130deg) scale(.2)}}
+    .studio-footer{display:flex;align-items:center;justify-content:space-between;color:#858D85;font-size:9px}.studio-footer span:last-child{color:var(--forest)}
+    .feed-intro{padding:16px 0 10px}.feed-intro small{color:var(--muted);font-size:8px}.feed-intro h1{margin:5px 0 0;color:var(--forest);font-size:19px;font-weight:800;letter-spacing:-.5px}.feed-intro p{margin:5px 0 0;color:var(--muted);font-size:8px;line-height:1.6}.compose-prompt{width:100%;display:flex;align-items:center;gap:9px;margin:5px 0 13px;padding:10px;border:1px solid #E9EEE9;border-radius:14px;background:#fff;text-align:left;box-shadow:0 3px 10px rgba(45,62,45,.035)}.compose-avatar{width:34px;height:34px;flex:0 0 34px;overflow:hidden;border-radius:50%}.compose-avatar img{width:100%;height:100%;object-fit:cover}.compose-hint{flex:1;color:#929792;font-size:8px}.compose-action{padding:6px 9px;border-radius:10px;background:var(--pale-green);color:var(--forest);font-size:8px;font-weight:700}.feed-filters{display:flex;gap:7px;overflow:auto;margin:0 -17px 12px;padding:0 17px 2px;scrollbar-width:none}.feed-filters::-webkit-scrollbar{display:none}.feed-filter{flex:0 0 auto;padding:7px 11px;border:1px solid #E9EEE9;border-radius:14px;background:#fff;color:#707970;font-size:8px}.feed-filter.active{border-color:var(--forest);background:var(--forest);color:white}.feed-card{animation:card-in .3s ease both}.feed-empty{margin:3px 0 12px;padding:20px 14px;border:1px dashed #D4E0D6;border-radius:14px;color:var(--muted);font-size:9px;line-height:1.7;text-align:center}.feed-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.feed-tag{padding:4px 7px;border-radius:9px;background:#F0F7F1;color:#63845F;font-size:7px}.post-place{margin-top:7px;color:#8B918B;font-size:7px}
+
+    /* ===== 拓展：二级页面通用 ===== */
+    .back-button{width:30px;height:30px;flex:0 0 30px;background:#fff;border:1px solid #E9EEE9}
+    .back-button svg{width:15px;height:15px}
+    [data-user]{cursor:pointer}
+    .event-card[data-event]{cursor:pointer}
+    .detail-cover{position:relative;height:186px;margin-top:14px;overflow:hidden;border-radius:17px;background:#B1C3AF}
+    .detail-cover img{width:100%;height:100%;object-fit:cover}
+    .detail-head{margin-top:11px}
+    .detail-title{margin:0 0 4px;color:var(--forest);font-size:19px;font-weight:800;letter-spacing:-.5px}
+    .detail-sub{margin:0;color:var(--muted);font-size:9px;line-height:1.6}
+    .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+    .info-tile{padding:9px 10px;border:1px solid var(--line);border-radius:12px;background:#fff}
+    .info-tile small{display:block;color:#9AA19A;font-size:7px}
+    .info-tile strong{display:block;margin-top:3px;color:var(--forest);font-size:9px;font-weight:800}
+    .block-card{margin-bottom:11px;padding:11px 12px;border:1px solid var(--line);border-radius:14px;background:#fff}
+    .block-title{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 7px;font-size:10px;font-weight:800}
+    .block-title small{color:#9AA19A;font-size:7px;font-weight:400}
+    .body-text{margin:0;color:#5F665F;font-size:9px;line-height:1.85}
+    .member-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+    .member-row .avatar{width:27px;height:27px;flex:0 0 27px;font-size:8px}
+    .avatar.plus{background:#F2F5F2;color:#709F5B}
+    .check-list{margin:0;padding-left:15px;color:#5F665F;font-size:9px;line-height:1.9}
+    .comment{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid #F2F4F1}
+    .comment:last-child{padding-bottom:0;border-bottom:0}
+    .comment-body{flex:1;min-width:0}
+    .comment-body strong{font-size:9px}
+    .comment-body p{margin:3px 0 0;color:#5F665F;font-size:9px;line-height:1.65}
+    .comment-body small{display:block;margin-top:3px;color:#A4ABA4;font-size:7px}
+    .detail-cta{display:flex;gap:8px;margin:2px 0 6px}
+    .detail-cta .join-button{flex:1;min-height:39px;border-radius:12px;font-size:9px}
+    .ghost-button{min-height:39px;padding:0 13px;border:1px solid #D6E4D8;border-radius:12px;background:#fff;color:var(--forest);font-size:9px;font-weight:700;transition:.18s}
+    .ghost-button:hover{background:#F1F7F2}
+
+    /* 搜索页 */
+    .search-field{position:relative;margin-top:15px}
+    .search-field input{width:100%;height:40px;padding:0 12px 0 33px;border:1px solid #E9EEE9;border-radius:13px;background:#F8FAF8;font-size:10px}
+    .search-field input:focus{border-color:var(--mint);background:#fff;outline:none}
+    .search-field .search-icon{position:absolute;top:50%;left:11px;transform:translateY(-50%)}
+    .tag-cloud{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+    .tag-cloud button{padding:6px 10px;border:1px solid #E9EEE9;border-radius:13px;background:#fff;color:#6E756E;font-size:8px}
+    .tag-cloud button:hover{border-color:var(--leaf);color:var(--forest)}
+    .result-item{display:flex;align-items:center;gap:9px;width:100%;padding:10px 0;border:0;border-bottom:1px solid #F2F4F1;background:transparent;text-align:left}
+    .result-item:last-child{border-bottom:0}
+    .result-type{flex:0 0 auto;padding:3px 7px;border-radius:8px;background:var(--pale-green);color:var(--forest);font-size:7px;font-weight:700}
+    .result-copy{flex:1;min-width:0}
+    .result-copy strong{display:block;font-size:9px}
+    .result-copy small{display:block;overflow:hidden;margin-top:2px;color:var(--muted);font-size:7px;text-overflow:ellipsis;white-space:nowrap}
+    .result-arrow{color:#B7BDB7;font-size:12px}
+
+    /* 通知页 */
+    .notice-row{display:flex;gap:9px;padding:11px 0;border-bottom:1px solid #F2F4F1}
+    .notice-row:last-child{border-bottom:0}
+    .notice-icon{width:33px;height:33px;flex:0 0 33px;display:grid;place-items:center;border-radius:12px;background:var(--pale-green);font-size:14px}
+    .notice-copy{flex:1;min-width:0}
+    .notice-copy strong{display:block;font-size:9px}
+    .notice-copy p{margin:3px 0 0;color:#5F665F;font-size:8.5px;line-height:1.6}
+    .notice-copy small{display:block;margin-top:3px;color:#A4ABA4;font-size:7px}
+
+    /* 聊天页 */
+    .chat-body{display:flex;flex-direction:column;gap:8px;padding:6px 0 10px}
+    .chat-day{align-self:center;margin:4px 0;padding:3px 9px;border-radius:9px;background:#F2F5F2;color:#9AA19A;font-size:7px}
+    .bubble{max-width:78%;padding:9px 11px;border-radius:14px 14px 14px 4px;background:#F2F5F2;color:#4E574F;font-size:9px;line-height:1.7;word-break:break-word}
+    .bubble.me{align-self:flex-end;border-radius:14px 14px 4px 14px;background:var(--forest);color:#fff}
+    .chat-bar{position:sticky;bottom:-8px;display:flex;gap:7px;padding:10px 0 4px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 32%)}
+    .chat-bar input{flex:1;height:37px;padding:0 11px;border:1px solid #E9EEE9;border-radius:12px;background:#F8FAF8;font-size:9px}
+    .chat-bar input:focus{border-color:var(--mint);background:#fff;outline:none}
+
+    /* 我的页快捷入口 */
+    .quick-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+    .quick-row button{display:grid;justify-items:center;gap:5px;padding:10px 4px;border:1px solid var(--line);border-radius:13px;background:#fff;color:var(--forest);font-size:8px;font-weight:700;transition:.18s}
+    .quick-row button span{font-size:14px;line-height:1}
+    .quick-row button:hover{border-color:var(--leaf);background:#F7FBF8}
+
+    /* 设置页 */
+    .setting-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid #F2F4F1;font-size:9px}
+    .setting-row:last-child{border-bottom:0}
+    .switch{position:relative;width:34px;height:19px;flex:0 0 34px;padding:0;border:0;border-radius:11px;background:#DDE4DD;transition:background .2s}
+    .switch::after{position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.15);content:"";transition:transform .2s}
+    .switch.on{background:var(--mint)}
+    .switch.on::after{transform:translateX(15px)}
+
+    /* 发起活动 */
+    .chip-select{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+    .chip-select button{padding:6px 10px;border:1px solid #E9EEE9;border-radius:12px;background:#fff;color:#6E756E;font-size:8px}
+    .chip-select button.on{border-color:var(--forest);background:var(--forest);color:#fff}
+
+    /* ===== 视频相关 ===== */
+    .video-trigger{position:absolute;z-index:2;top:50%;left:50%;width:42px;height:42px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.6);border-radius:50%;background:rgba(22,34,24,.5);color:#fff;transform:translate(-50%,-50%);backdrop-filter:blur(6px);transition:.18s}
+    .video-trigger:hover{transform:translate(-50%,-50%) scale(1.08);background:rgba(22,34,24,.68)}
+    .video-trigger svg{width:16px;height:16px;fill:currentColor}
+
+    .video-stage{position:relative;margin-top:14px;overflow:hidden;border-radius:16px;background:#0E1512;aspect-ratio:16/9}
+    .video-stage video{display:block;width:100%;height:100%;object-fit:contain;background:#000}
+    .video-minimize{position:absolute;z-index:2;top:8px;right:8px;width:30px;height:30px;display:grid;place-items:center;border:0;border-radius:50%;background:rgba(20,30,22,.55);color:#fff;backdrop-filter:blur(6px)}
+    .video-minimize svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .video-platform{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;color:var(--muted);font-size:8px}
+    .video-platform strong{color:var(--forest);font-size:9px}
+    .video-meta{margin-top:12px}
+    .video-actions{display:flex;gap:8px;margin:12px 0 8px}
+    .video-actions .primary-button{flex:1}
+    .video-actions .ghost-button{flex:0 0 auto}
+    .video-hint{margin:6px 0 0;color:#A4ABA4;font-size:7.5px;line-height:1.6}
+
+    .mini-player{position:absolute;z-index:12;right:12px;bottom:88px;width:176px;overflow:hidden;border-radius:14px;background:#0E1512;box-shadow:0 10px 30px rgba(20,35,22,.28);animation:mini-in .24s ease both}
+    .mini-player[hidden]{display:none}
+    @keyframes mini-in{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+    .mini-player video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#000;cursor:pointer}
+    .mini-bar{display:flex;align-items:center;gap:6px;padding:6px 7px;background:#121A15;color:#fff}
+    .mini-bar span{flex:1;min-width:0;overflow:hidden;font-size:7.5px;white-space:nowrap;text-overflow:ellipsis}
+    .mini-bar button{width:22px;height:22px;display:grid;place-items:center;border:0;border-radius:7px;background:rgba(255,255,255,.12);color:#fff}
+    .mini-bar button svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+    .video-preview{display:flex;align-items:center;gap:9px;width:100%;padding:7px;border:1px solid #EEF2EE;border-radius:12px;background:#FAFCFA;text-align:left}
+    .video-thumb{position:relative;flex:0 0 92px;height:60px;overflow:hidden;border-radius:8px;background:#DCE6DC}
+    .video-thumb img{width:100%;height:100%;object-fit:cover}
+    .play-badge{position:absolute;inset:0;margin:auto;width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:rgba(20,30,22,.62);color:#fff;font-size:9px;font-style:normal;backdrop-filter:blur(4px)}
+    .video-preview-copy{flex:1;min-width:0}
+    .video-preview-copy strong{display:block;font-size:9px}
+    .video-preview-copy small{display:block;margin-top:3px;color:var(--muted);font-size:7px;line-height:1.5}
+
+    @media(max-width:900px){.studio{padding:0 16px}.stage{grid-template-columns:minmax(145px,1fr) 418px;gap:20px}.side-note.right{display:none}}
+    @media(max-width:640px){html,body{width:100%;height:100%;overflow:hidden}body{background:#fff}.studio{display:block;min-height:100dvh;padding:0}.studio-header,.studio-footer,.side-note{display:none}.stage{display:grid;grid-template-columns:minmax(0,1fr);min-height:100dvh;padding:8px 0}.device{width:min(100%,calc((100dvh - 16px)*418/890));height:auto;aspect-ratio:418/890;border-width:7px;border-radius:49px;box-shadow:0 16px 45px rgba(43,60,43,.18),0 3px 12px rgba(43,60,43,.1)}.device::before{top:135px;left:-10px}.device::after{top:185px;right:-10px;height:66px}.app{border-radius:39px}.app::before{top:7px;width:112px;height:29px}.app::after{top:16px;left:calc(50% + 32px);width:7px;height:7px}.statusbar{padding-top:max(5px,env(safe-area-inset-top))}.bottom-nav{height:calc(74px + env(safe-area-inset-bottom));padding:5px 4px calc(9px + env(safe-area-inset-bottom))}.scroll-area{bottom:calc(74px + env(safe-area-inset-bottom))}.mini-player{bottom:calc(84px + env(safe-area-inset-bottom))}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+  <div class="studio">
+    <header class="studio-header">
+      <div class="brand-lockup"><div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5 9 17l10-10" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3.5 20 7v5c0 4.5-3.6 7.3-8 9-4.4-1.7-8-4.5-8-9V7l8-3.5Z" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".85"/></svg></div><div><div class="brand-name">野友局 · YEAH CLUB</div><div class="brand-caption">兴趣同频，线下见面</div></div></div>
+      <div class="header-meta"><span class="meta-pill">C 端潮流社交 · 交互原型</span><span class="meta-pill">iPhone 17 · 03 / 03</span></div>
+    </header>
+    <main class="stage">
+      <aside class="side-note">
+        <div class="note-kicker">FIND YOUR PEOPLE</div>
+        <h1 class="note-title">兴趣同频，<br>线下见面。</h1>
+        <p class="note-copy">不止刷动态，更要一起去做点什么。发现附近活动、找到同好搭子，让线上兴趣自然发生在线下。</p>
+        <div class="note-divider"></div>
+        <div class="journey">
+          <div class="journey-item"><span class="journey-number">01</span><div><strong>发现同好</strong><small>跟着兴趣标签刷到对的人。</small></div></div>
+          <div class="journey-item"><span class="journey-number">02</span><div><strong>加入同城局</strong><small>骑行、逛展、咖啡，随时组队。</small></div></div>
+          <div class="journey-item"><span class="journey-number">03</span><div><strong>认识新朋友</strong><small>从一次线下见面开始熟起来。</small></div></div>
+        </div>
+        <div class="note-divider"></div>
+        <div class="note-kicker">NEW IN THIS VERSION</div>
+        <p class="note-copy" style="margin-top:10px">活动视频内置播放 · 最小化为小窗<br>边看边逛，不离开野友局</p>
+        <div class="note-divider"></div>
+        <div class="note-kicker">REFERENCE PALETTE</div>
+        <div class="swatches" aria-label="参考配色"><i class="swatch forest"></i><i class="swatch leaf"></i><i class="swatch sage"></i><i class="swatch mint"></i><i class="swatch aqua"></i></div>
+      </aside>
+
+      <section class="device" aria-label="野友局 iPhone 17 原型">
+        <div class="app">
+          <div class="statusbar"><span>9:41</span><span class="status-icons"><span class="signal"><i></i><i></i><i></i><i></i></span><svg width="14" height="12" viewBox="0 0 16 14" aria-hidden="true"><path d="M1 5.2a10.4 10.4 0 0 1 14 0M3.5 8a6.7 6.7 0 0 1 9 0M6.2 10.7a2.7 2.7 0 0 1 3.6 0" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><i class="battery"></i></span></div>
+          <header class="app-topbar">
+            <div class="topbar-left">
+              <button class="icon-button back-button" id="backButton" type="button" aria-label="返回" hidden><svg viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button>
+              <div id="topbarTitle"><div class="top-title">野友局<span> ·</span></div><div class="top-subtitle">找到一起玩的人</div></div>
+            </div>
+            <div class="top-actions">
+              <button class="icon-button" type="button" aria-label="搜索" data-go="search"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.5 15.5 4.1 4.1"/></svg></button>
+              <button class="icon-button" type="button" aria-label="通知" data-go="notifications"><svg viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><i class="notification-dot"></i></button>
+            </div>
+          </header>
+          <div class="scroll-area" id="scrollArea">
+            <section class="screen active" data-screen="discover" aria-label="发现">
+              <div class="welcome-row"><div><small>星期六 · 杭州天气 22° ☀</small><h1>早上好，禾木！</h1></div><button class="location-pill" type="button" data-nav="city">⌖ 杭州　⌄</button></div>
+              <div class="search-bar" data-go="search"><span class="search-icon"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.2"/><path d="m15.4 15.4 4.2 4.2"/></svg></span><span>搜活动、兴趣，或附近的人</span><span style="margin-left:auto;color:#709F5B">⌕</span></div>
+              <div class="story-strip" aria-label="同好动态">
+                <button class="story add" type="button" data-open="create"><span class="story-ring">＋</span>发个动态</button>
+                <button class="story" type="button" data-toast="打开七月岛的主页"><span class="story-ring"><img src="拾光人像素材/woman1.jpg" alt=""></span>七月岛</button>
+                <button class="story" type="button" data-toast="打开阿树的主页"><span class="story-ring"><img src="拾光人像素材/man3.jpg" alt=""></span>阿树</button>
+                <button class="story" type="button" data-toast="打开Momo的主页"><span class="story-ring"><img src="拾光人像素材/woman4.jpg" alt=""></span>Momo</button>
+                <button class="story" type="button" data-toast="打开小鹿的主页"><span class="story-ring"><img src="拾光人像素材/woman3.jpg" alt=""></span>小鹿</button>
+                <button class="story" type="button" data-toast="打开小满的主页"><span class="story-ring"><img src="拾光人像素材/woman2.jpg" alt=""></span>小满</button>
+              </div>
+              <article class="hero-card">
+                <img src="拾光素材/city-evening.jpg" alt="杭州城市户外生活场景">
+                <button class="hero-cta" type="button" data-nav="city">同城热榜　↗</button>
+                <div class="hero-copy"><div class="hero-eyebrow">YOUR NEXT PLAN STARTS HERE</div><h2>周末，别一个人待着</h2><p>12 个新活动正在等你加入。</p></div>
+              </article>
+              <div class="topic-strip" role="group" aria-label="按兴趣筛选活动">
+                <button class="topic-chip active" type="button" data-filter="全部" aria-pressed="true">✨ 推荐</button>
+                <button class="topic-chip" type="button" data-filter="户外" aria-pressed="false">🌿 户外</button>
+                <button class="topic-chip" type="button" data-filter="咖啡" aria-pressed="false">☕ 咖啡</button>
+                <button class="topic-chip" type="button" data-filter="运动" aria-pressed="false">🎾 运动</button>
+                <button class="topic-chip" type="button" data-filter="逛展" aria-pressed="false">🎨 逛展</button>
+              </div>
+              <div class="section-heading"><h2>附近正在发生</h2><button class="text-link" type="button" data-nav="city">查看同城　→</button></div>
+              <article class="event-card" data-category="户外" data-event="ride">
+                <div class="card-cover">
+                  <img src="拾光素材/river-walk.jpg" alt="沿着河边绿道骑行">
+                  <span class="cover-badge">🌿 户外 · 还差 2 人</span>
+                  <button class="video-trigger" type="button" data-video="ride" aria-label="看活动视频"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg></button>
+                  <button class="cover-save" type="button" aria-label="收藏活动" data-toast="活动已收藏"><svg viewBox="0 0 24 24"><path d="M6 4.5h12v16l-6-4-6 4z"/></svg></button>
+                  <div class="cover-caption"><strong>沿河骑行，去吹晚风</strong><small>周六 16:30 · 钱塘江绿道</small></div>
+                </div>
+                <div class="card-content"><div class="host-row"><span class="avatar" data-user="ashu"><img src="拾光人像素材/man3.jpg" alt=""></span><span class="host-copy"><strong>阿树发起的周末局</strong><small>轻松骑行 · 新手友好</small></span><button class="join-button" type="button" aria-pressed="false">加入　＋</button></div><div class="event-meta"><span>👥 <b class="joined-count">4</b> / 6 人</span><span>⌖ 2.1 km</span><span>免费参加</span></div></div>
+              </article>
+              <article class="social-card" data-category="咖啡">
+                <div class="social-head"><span class="avatar" data-user="qiyuedao"><img src="拾光人像素材/woman1.jpg" alt=""></span><span class="social-copy"><strong>七月岛　<span style="color:#8DAB97;font-weight:400">· 12 分钟前</span></strong><small>杭州 · 喜欢咖啡和城市散步</small></span><button class="follow-button" type="button" aria-pressed="false">＋ 关注</button></div>
+                <p class="social-text">找到一家可以坐一下午的小店。周末想再来一次，有人一起吗？🧃</p>
+                <img class="social-image" src="拾光素材/cafe-window.jpg" alt="阳光里的街角咖啡店">
+                <div class="social-actions"><button class="action-button like-button" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M20.5 8.8c0 5.3-8.5 10.3-8.5 10.3S3.5 14.1 3.5 8.8a4.5 4.5 0 0 1 8.5-2 4.5 4.5 0 0 1 8.5 2Z"/></svg><span class="count">36</span></button><button class="action-button" type="button" data-toast="这里有 8 条评论"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 9 9 0 0 1-3.8-.8L4 20l1.2-3.2A7.2 7.2 0 0 1 4 12c0-4.4 3.6-8 8-8s8 3.4 8 7.5Z"/></svg><span>8</span></button><button class="action-button" type="button" data-toast="动态已分享给你的好友">↗ <span>分享</span></button></div>
+              </article>
+              <article class="event-card" data-category="运动" data-event="flower">
+                <div class="card-cover">
+                  <img src="拾光素材/flower-market.jpg" alt="周末一起逛花市">
+                  <span class="cover-badge">🎨 城市漫游 · 4 人想去</span>
+                  <button class="video-trigger" type="button" data-video="flower" aria-label="看活动视频"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg></button>
+                  <button class="cover-save" type="button" aria-label="收藏活动" data-toast="活动已收藏"><svg viewBox="0 0 24 24"><path d="M6 4.5h12v16l-6-4-6 4z"/></svg></button>
+                  <div class="cover-caption"><strong>周日花市散步搭子</strong><small>周日 10:00 · 凤起花鸟城</small></div>
+                </div>
+                <div class="card-content"><div class="host-row"><span class="avatar" data-user="xiaoman"><img src="拾光人像素材/woman2.jpg" alt=""></span><span class="host-copy"><strong>小满发起的散步局</strong><small>边逛边拍 · 女生优先</small></span><button class="join-button" type="button" aria-pressed="false">一起去　＋</button></div><div class="event-meta"><span>👥 <b class="joined-count">3</b> / 5 人</span><span>⌖ 850 m</span><span>AA 制</span></div></div>
+              </article>
+              <div class="empty-note" id="emptyNote">这个兴趣暂时还没有活动，换个标签发现新搭子吧。</div>
+            </section>
+
+            <section class="screen" data-screen="dynamic" aria-label="动态">
+              <div class="feed-intro"><small>同城的人，正在分享此刻</small><h1>动态广场</h1><p>发现兴趣相投的新朋友，把喜欢的事变成下一次见面。</p></div>
+              <button class="compose-prompt" type="button" data-open="create"><span class="compose-avatar"><img src="拾光人像素材/man4.jpg" alt="禾木日常头像"></span><span class="compose-hint">分享今天的灵感或小发现…</span><span class="compose-action">发动态　＋</span></button>
+              <div class="feed-filters" role="group" aria-label="筛选动态">
+                <button class="feed-filter active" type="button" data-feed-filter="全部" aria-pressed="true">为你推荐</button>
+                <button class="feed-filter" type="button" data-feed-filter="关注" aria-pressed="false">关注</button>
+                <button class="feed-filter" type="button" data-feed-filter="户外" aria-pressed="false">🌿 户外</button>
+                <button class="feed-filter" type="button" data-feed-filter="咖啡" aria-pressed="false">☕ 咖啡</button>
+                <button class="feed-filter" type="button" data-feed-filter="城市" aria-pressed="false">📷 城市生活</button>
+              </div>
+              <div class="section-heading" style="margin-top:0"><h2>附近的新鲜事</h2><small>杭州 · 刚刚更新</small></div>
+              <div class="feed-empty" hidden>关注几个感兴趣的人，他们的新动态就会出现在这里。</div>
+              <article class="social-card feed-card" data-feed-category="户外" data-own="false">
+                <div class="social-head"><span class="avatar" data-user="ashu"><img src="拾光人像素材/man3.jpg" alt="阿树头像"></span><span class="social-copy"><strong>阿树　<span style="color:#8DAB97;font-weight:400">· 5 分钟前</span></strong><small>杭州 · 周末骑行爱好者</small></span><button class="follow-button" type="button" aria-pressed="false">＋ 关注</button></div>
+                <p class="social-text">沿着钱塘江骑到日落，风刚刚好。下周还想再出发，有没有新手友好的骑行搭子？🚲</p>
+                <img class="social-image" src="拾光素材/river-walk.jpg" alt="钱塘江边的绿道和晚风">
+                <div class="feed-tags"><span class="feed-tag">#周末骑行</span><span class="feed-tag">#户外搭子</span></div><div class="post-place">⌖ 钱塘江绿道 · 2.1 km</div>
+                <div class="social-actions"><button class="action-button like-button" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M20.5 8.8c0 5.3-8.5 10.3-8.5 10.3S3.5 14.1 3.5 8.8a4.5 4.5 0 0 1 8.5-2 4.5 4.5 0 0 1 8.5 2Z"/></svg><span class="count">28</span></button><button class="action-button" type="button" data-toast="这里有 6 条评论"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 9 9 0 0 1-3.8-.8L4 20l1.2-3.2A7.2 7.2 0 0 1 4 12c0-4.4 3.6-8 8-8s8 3.4 8 7.5Z"/></svg><span>6</span></button><button class="action-button" type="button" data-toast="动态已分享给你的好友">↗ <span>分享</span></button></div>
+              </article>
+              <article class="social-card feed-card" data-feed-category="咖啡" data-own="false">
+                <div class="social-head"><span class="avatar" data-user="qiyuedao"><img src="拾光人像素材/woman1.jpg" alt="七月岛头像"></span><span class="social-copy"><strong>七月岛　<span style="color:#8DAB97;font-weight:400">· 18 分钟前</span></strong><small>杭州 · 咖啡爱好者，喜欢散步</small></span><button class="follow-button" type="button" aria-pressed="false">＋ 关注</button></div>
+                <p class="social-text">在老街发现一家被阳光照亮的小店，手冲和巴斯克都很不错。下次想带相机来慢慢坐 ☕</p>
+                <img class="social-image" src="拾光素材/cafe-window.jpg" alt="阳光照进街角咖啡店">
+                <div class="feed-tags"><span class="feed-tag">#咖啡探店</span><span class="feed-tag">#城市漫步</span></div><div class="post-place">⌖ 滨江 · 850 m</div>
+                <div class="social-actions"><button class="action-button like-button" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M20.5 8.8c0 5.3-8.5 10.3-8.5 10.3S3.5 14.1 3.5 8.8a4.5 4.5 0 0 1 8.5-2 4.5 4.5 0 0 1 8.5 2Z"/></svg><span class="count">42</span></button><button class="action-button" type="button" data-toast="这里有 12 条评论"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 9 9 0 0 1-3.8-.8L4 20l1.2-3.2A7.2 7.2 0 0 1 4 12c0-4.4 3.6-8 8-8s8 3.4 8 7.5Z"/></svg><span>12</span></button><button class="action-button" type="button" data-toast="动态已分享给你的好友">↗ <span>分享</span></button></div>
+              </article>
+              <article class="social-card feed-card" data-feed-category="城市" data-own="false">
+                <div class="social-head"><span class="avatar" data-user="xiaolu"><img src="拾光人像素材/woman3.jpg" alt="小鹿头像"></span><span class="social-copy"><strong>小鹿　<span style="color:#8DAB97;font-weight:400">· 32 分钟前</span></strong><small>杭州 · 喜欢花草和胶片摄影</small></span><button class="follow-button" type="button" aria-pressed="false">＋ 关注</button></div>
+                <p class="social-text">早起去花市逛了一圈，今天的颜色都好温柔。下次想约几个朋友一起边走边拍 📷🌼</p>
+                <img class="social-image" src="拾光素材/flower-market.jpg" alt="花市里盛开的鲜花">
+                <div class="feed-tags"><span class="feed-tag">#城市漫游</span><span class="feed-tag">#花市拍照</span></div><div class="post-place">⌖ 凤起花鸟城 · 1.3 km</div>
+                <div class="social-actions"><button class="action-button like-button" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M20.5 8.8c0 5.3-8.5 10.3-8.5 10.3S3.5 14.1 3.5 8.8a4.5 4.5 0 0 1 8.5-2 4.5 4.5 0 0 1 8.5 2Z"/></svg><span class="count">19</span></button><button class="action-button" type="button" data-toast="这里有 4 条评论"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 9 9 0 0 1-3.8-.8L4 20l1.2-3.2A7.2 7.2 0 0 1 4 12c0-4.4 3.6-8 8-8s8 3.4 8 7.5Z"/></svg><span>4</span></button><button class="action-button" type="button" data-toast="动态已分享给你的好友">↗ <span>分享</span></button></div>
+              </article>
+            </section>
+
+            <section class="screen" data-screen="city" aria-label="同城">
+              <div class="section-heading" style="margin-top:17px"><h2>同城热力图</h2><button class="location-pill" type="button" data-toast="当前定位：杭州 · 滨江区">⌖ 杭州　⌄</button></div>
+              <div class="city-banner"><div class="map-grid"></div><div class="map-river"></div><div class="map-label">杭州 · 滨江区　2 km</div><button class="map-pin" type="button" data-go="eventDetail" data-arg="ride"><span>骑</span></button><button class="map-pin p2" type="button" data-go="eventDetail" data-arg="cafe"><span>咖</span></button><button class="map-pin p3" type="button" data-go="eventDetail" data-arg="flower"><span>花</span></button><div class="map-note">🟢 12 个活动正在进行</div></div>
+              <div class="section-heading"><h2>本周热门局</h2><small>和同城的人一起玩</small></div>
+              <div id="cityHotList">
+                <article class="event-card" data-category="户外" data-event="ride">
+                  <div class="card-cover" style="height:130px">
+                    <img src="拾光素材/river-walk.jpg" alt="钱塘江边骑行活动">
+                    <span class="cover-badge">🔥 人气第 1</span>
+                    <button class="video-trigger" type="button" data-video="ride" aria-label="看活动视频"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg></button>
+                    <div class="cover-caption"><strong>钱塘江落日骑行</strong><small>今天 16:30 · 还差 2 人</small></div>
+                  </div>
+                  <div class="card-content"><div class="host-row"><span class="avatar" data-user="ashu"><img src="拾光人像素材/man3.jpg" alt=""></span><span class="host-copy"><strong>阿树　·　户外爱好者</strong><small>新手友好　·　2.1 km</small></span><button class="join-button" type="button" aria-pressed="false">加入</button></div></div>
+                </article>
+                <article class="event-card" data-category="咖啡" data-event="cafe">
+                  <div class="card-cover" style="height:130px">
+                    <img src="拾光素材/cafe-window.jpg" alt="滨江咖啡馆探店">
+                    <span class="cover-badge">☕ 咖啡探店</span>
+                    <button class="video-trigger" type="button" data-video="cafe" aria-label="看活动视频"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg></button>
+                    <div class="cover-caption"><strong>滨江新店盲测小分队</strong><small>周日 14:00 · 还差 1 人</small></div>
+                  </div>
+                  <div class="card-content"><div class="host-row"><span class="avatar" data-user="qiyuedao"><img src="拾光人像素材/woman1.jpg" alt=""></span><span class="host-copy"><strong>七月岛　·　咖啡脑袋</strong><small>AA 制　·　850 m</small></span><button class="join-button" type="button" aria-pressed="false">加入</button></div></div>
+                </article>
+              </div>
+              <div class="section-heading"><h2>附近的兴趣小组</h2><button class="text-link" type="button" data-toast="更多兴趣小组即将开放">全部　→</button></div>
+              <div class="social-card"><strong style="font-size:10px">🌱 杭州周末户外局</strong><p class="social-text" style="margin-bottom:0">1,284 位同城玩家 · 每周都有新活动</p></div>
+              <div class="social-card"><strong style="font-size:10px">📷 城市街拍搭子</strong><p class="social-text" style="margin-bottom:0">682 位同城玩家 · 带上相机去发现</p></div>
+              <button class="primary-button" type="button" data-go="createEvent" style="width:100%;margin-top:4px">我也发起一个局　＋</button>
+            </section>
+
+            <section class="screen" data-screen="messages" aria-label="消息">
+              <div class="section-heading" style="margin-top:19px"><h2>消息</h2><button class="text-link" type="button" data-toast="所有消息已标为已读">全部已读</button></div>
+              <div class="social-card" style="background:#F0F7F1"><strong style="font-size:10px">🎉 活动邀请</strong><p class="social-text" style="margin-bottom:0">阿树邀请你加入「沿河骑行，去吹晚风」</p></div>
+              <div class="chat-row" data-chat="七月岛"><span class="chat-avatar"><img src="拾光人像素材/woman1.jpg" alt=""><i class="online-dot"></i></span><span class="chat-copy"><strong>七月岛</strong><small>好呀！周日那家店门口见～</small></span><span class="chat-time">刚刚<i class="unread">2</i></span></div>
+              <div class="chat-row" data-chat="阿树"><span class="chat-avatar"><img src="拾光人像素材/man3.jpg" alt=""><i class="online-dot"></i></span><span class="chat-copy"><strong>阿树</strong><small>骑行路线我发群里啦，都是绿道</small></span><span class="chat-time">10:24</span></div>
+              <div class="chat-row" data-chat="周末骑行小分队"><span class="chat-avatar"><img src="拾光人像素材/man2.jpg" alt=""></span><span class="chat-copy"><strong>周末骑行小分队（6）</strong><small>小满：我可以带一个朋友一起吗？</small></span><span class="chat-time">昨天</span></div>
+              <div class="chat-row" data-chat="小鹿"><span class="chat-avatar"><img src="拾光人像素材/woman3.jpg" alt=""></span><span class="chat-copy"><strong>小鹿</strong><small>同城活动：周日花市散步搭子</small></span><span class="chat-time">周四</span></div>
+              <div class="chat-row" data-chat="Momo"><span class="chat-avatar"><img src="拾光人像素材/woman4.jpg" alt=""></span><span class="chat-copy"><strong>Momo</strong><small>谢谢推荐！那家店的抹茶真的很绝</small></span><span class="chat-time">周三</span></div>
+              <button class="primary-button" type="button" data-toast="正在为你匹配兴趣相投的新朋友" style="width:100%;margin-top:18px">发现新朋友　→</button>
+            </section>
+
+            <section class="screen" data-screen="profile" aria-label="我的">
+              <div class="section-heading" style="margin-top:16px"><h2>我的主页</h2><button class="text-link" type="button" data-open="profile">编辑资料　↗</button></div>
+              <div class="profile-cover"><img src="拾光素材/city-evening.jpg" alt="傍晚的城市天际线"></div>
+              <div class="profile-avatar"><img src="拾光人像素材/man4.jpg" alt=""></div><div class="profile-name"><strong id="profileName">禾木日常</strong><span class="profile-badge">🌿 城市玩家</span></div>
+              <p class="profile-bio" id="profileBio">喜欢骑行、咖啡和逛展。周末别宅，一起出门玩！<br>📍 杭州 · 滨江</p>
+              <div class="profile-stats"><div><strong>28</strong><small>动态</small></div><div><strong>1,286</strong><small>粉丝</small></div><div><strong>328</strong><small>关注</small></div><div><strong>12</strong><small>参加活动</small></div></div>
+              <div class="quick-row">
+                <button type="button" data-go="favorites"><span>♡</span>我的收藏</button>
+                <button type="button" data-go="createEvent"><span>＋</span>发起活动</button>
+                <button type="button" data-go="settings"><span>⚙</span>设置</button>
+              </div>
+              <div class="section-heading"><h2>我发起的活动</h2><small>查看全部　→</small></div>
+              <article class="event-card" data-event="flower"><div class="card-cover" style="height:125px"><img src="拾光素材/flower-market.jpg" alt="周日花市漫步活动"><span class="cover-badge">本周日 · 10:00</span><div class="cover-caption"><strong>周日花市散步搭子</strong><small>3 位新朋友已加入</small></div></div></article>
+              <div class="section-heading"><h2>最近分享</h2><small>我的兴趣动态</small></div>
+              <img class="social-image" src="拾光素材/cafe-window.jpg" alt="分享的咖啡馆照片" style="height:130px">
+            </section>
+
+            <section class="screen" data-screen="search" aria-label="搜索">
+              <div class="search-field">
+                <span class="search-icon"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.2"/><path d="m15.4 15.4 4.2 4.2"/></svg></span>
+                <input id="searchInput" type="search" placeholder="搜活动、兴趣，或同城的人" autocomplete="off">
+              </div>
+              <div class="section-heading"><h2>大家都在搜</h2><small>杭州 · 实时</small></div>
+              <div class="tag-cloud">
+                <button type="button" data-search="骑行">🌿 周末骑行</button>
+                <button type="button" data-search="咖啡">☕ 咖啡探店</button>
+                <button type="button" data-search="花市">🌼 花市散步</button>
+                <button type="button" data-search="摄影">📷 街拍搭子</button>
+                <button type="button" data-search="看展">🎨 周末看展</button>
+                <button type="button" data-search="杭州">📍 杭州同城</button>
+              </div>
+              <div class="section-heading"><h2 id="searchResultTitle">猜你想去</h2><small id="searchResultCount"></small></div>
+              <div id="searchResults"></div>
+            </section>
+
+            <section class="screen" data-screen="eventDetail" aria-label="活动详情">
+              <div id="eventDetailBody"></div>
+            </section>
+
+            <!-- ========== 视频页 ========== -->
+            <section class="screen" data-screen="video" aria-label="活动视频">
+              <div id="videoBody"></div>
+            </section>
+
+            <section class="screen" data-screen="notifications" aria-label="通知">
+              <div class="section-heading" style="margin-top:17px"><h2>通知</h2><button class="text-link" type="button" data-toast="通知已全部标为已读">全部已读</button></div>
+              <div class="block-card">
+                <div class="notice-row"><span class="notice-icon">🎉</span><span class="notice-copy"><strong>阿树 邀请你加入活动</strong><p>「沿河骑行，去吹晚风」还差 2 人，一起来吗？</p><small>5 分钟前</small></span></div>
+                <div class="notice-row"><span class="notice-icon">💬</span><span class="notice-copy"><strong>七月岛 回复了你的动态</strong><p>“这家店我也去过！周日一起？”</p><small>26 分钟前</small></span></div>
+                <div class="notice-row"><span class="notice-icon">❤️</span><span class="notice-copy"><strong>小鹿 赞了你的分享</strong><p>「滨江傍晚的江风真的很舒服」</p><small>1 小时前</small></span></div>
+                <div class="notice-row"><span class="notice-icon">👥</span><span class="notice-copy"><strong>3 位新朋友关注了你</strong><p>Momo、小满 和另外 1 位同城玩家</p><small>今天 09:12</small></span></div>
+                <div class="notice-row"><span class="notice-icon">📍</span><span class="notice-copy"><strong>你收藏的活动即将开始</strong><p>「周日花市散步搭子」明天 10:00 集合</p><small>昨天</small></span></div>
+              </div>
+              <button class="primary-button" type="button" data-go="search" style="width:100%;margin-top:6px">去发现更多活动　→</button>
+            </section>
+
+            <section class="screen" data-screen="chat" aria-label="聊天">
+              <div class="chat-body" id="chatBody"></div>
+              <div class="chat-bar">
+                <input id="chatInput" placeholder="友好地打个招呼…" maxlength="120" autocomplete="off">
+                <button class="primary-button" id="chatSend" type="button" style="min-height:37px;padding:0 13px">发送</button>
+              </div>
+            </section>
+
+            <section class="screen" data-screen="userProfile" aria-label="个人主页">
+              <div id="userProfileBody"></div>
+            </section>
+
+            <section class="screen" data-screen="createEvent" aria-label="发起活动">
+              <div class="feed-intro"><small>组个局，认识同频的人</small><h1>发起活动</h1><p>填好这些，同好会更容易找到你。</p></div>
+              <label class="field-label" for="evTitle">活动主题</label>
+              <input class="date-field" id="evTitle" placeholder="例如：周六沿江骑行，新手友好" maxlength="30">
+              <label class="field-label">活动类型</label>
+              <div class="chip-select" id="evTypes">
+                <button type="button" class="on">🌿 户外</button>
+                <button type="button">☕ 咖啡</button>
+                <button type="button">🎾 运动</button>
+                <button type="button">🎨 逛展</button>
+              </div>
+              <label class="field-label" for="evTime">活动时间</label>
+              <input class="date-field" id="evTime" type="datetime-local">
+              <label class="field-label" for="evPlace">集合地点</label>
+              <input class="date-field" id="evPlace" placeholder="例如：钱塘江绿道 闻涛路口" maxlength="30">
+              <label class="field-label" for="evLimit">人数上限</label>
+              <input class="date-field" id="evLimit" type="number" min="2" max="30" value="6">
+              <label class="field-label" for="evDesc">活动介绍</label>
+              <textarea class="caption-input" id="evDesc" maxlength="200" placeholder="说说玩法、节奏和适合谁来"></textarea>
+              <button class="primary-button" id="publishEvent" type="button" style="width:100%;margin-top:13px">发布活动　✦</button>
+            </section>
+
+            <section class="screen" data-screen="favorites" aria-label="我的收藏">
+              <div class="section-heading" style="margin-top:17px"><h2>我收藏的活动</h2><small>2 个</small></div>
+              <article class="event-card" data-category="户外" data-event="ride"><div class="card-cover" style="height:126px"><img src="拾光素材/river-walk.jpg" alt="收藏的骑行活动"><span class="cover-badge">🌿 户外</span><div class="cover-caption"><strong>沿河骑行，去吹晚风</strong><small>周六 16:30 · 钱塘江绿道</small></div></div></article>
+              <article class="event-card" data-category="咖啡" data-event="cafe"><div class="card-cover" style="height:126px"><img src="拾光素材/cafe-window.jpg" alt="收藏的咖啡活动"><span class="cover-badge">☕ 咖啡</span><div class="cover-caption"><strong>滨江新店盲测小分队</strong><small>周日 14:00 · 滨江</small></div></div></article>
+              <div class="section-heading"><h2>我收藏的动态</h2><small>1 条</small></div>
+              <article class="social-card">
+                <div class="social-head"><span class="avatar" data-user="xiaolu"><img src="拾光人像素材/woman3.jpg" alt=""></span><span class="social-copy"><strong>小鹿　<span style="color:#8DAB97;font-weight:400">· 32 分钟前</span></strong><small>杭州 · 喜欢花草和胶片摄影</small></span></div>
+                <p class="social-text">早起去花市逛了一圈，今天的颜色都好温柔。下次想约几个朋友一起边走边拍 📷🌼</p>
+                <img class="social-image" src="拾光素材/flower-market.jpg" alt="">
+                <div class="social-actions"><button class="action-button like-button" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M20.5 8.8c0 5.3-8.5 10.3-8.5 10.3S3.5 14.1 3.5 8.8a4.5 4.5 0 0 1 8.5-2 4.5 4.5 0 0 1 8.5 2Z"/></svg><span class="count">19</span></button><button class="action-button" type="button" data-toast="动态已分享给你的好友">↗ <span>分享</span></button></div>
+              </article>
+              <div class="feed-empty" style="margin-top:6px">收藏的活动开始前会提醒你，别错过啦。</div>
+            </section>
+
+            <section class="screen" data-screen="settings" aria-label="设置">
+              <div class="section-heading" style="margin-top:17px"><h2>设置</h2><small>野友局 v1.0</small></div>
+              <div class="block-card">
+                <div class="setting-row"><span>接收活动推荐</span><button class="switch on" type="button" aria-pressed="true" aria-label="接收活动推荐"></button></div>
+                <div class="setting-row"><span>同城活动提醒</span><button class="switch on" type="button" aria-pressed="true" aria-label="同城活动提醒"></button></div>
+                <div class="setting-row"><span>新消息通知</span><button class="switch on" type="button" aria-pressed="true" aria-label="新消息通知"></button></div>
+                <div class="setting-row"><span>允许陌生人私信</span><button class="switch" type="button" aria-pressed="false" aria-label="允许陌生人私信"></button></div>
+              </div>
+              <div class="section-heading"><h2>账号与隐私</h2></div>
+              <div class="block-card">
+                <div class="setting-row" data-toast="定位已设置为：杭州 · 滨江区"><span>我的定位</span><small style="color:#9AA19A">杭州 · 滨江区 ›</small></div>
+                <div class="setting-row" data-toast="当前版本已是最新"><span>检查更新</span><small style="color:#9AA19A">v1.0.0 ›</small></div>
+                <div class="setting-row" data-toast="已隐藏我的活动记录"><span>隐藏参与记录</span><button class="switch" type="button" aria-pressed="false" aria-label="隐藏参与记录"></button></div>
+              </div>
+              <button class="ghost-button" type="button" data-toast="已退出登录（原型演示）" style="width:100%;margin-top:6px">退出登录</button>
+            </section>
+          </div>
+
+          <!-- ===== 迷你播放器 ===== -->
+          <div class="mini-player" id="miniPlayer" hidden>
+            <div id="miniVideoHolder"></div>
+            <div class="mini-bar">
+              <span id="miniTitle">活动视频</span>
+              <button type="button" id="miniExpand" aria-label="展开视频"><svg viewBox="0 0 24 24"><path d="M9 4H4v5M15 20h5v-5M4 4l6 6M20 20l-6-6"/></svg></button>
+              <button type="button" id="miniClose" aria-label="关闭视频"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+            </div>
+          </div>
+
+          <!-- ===== 底部导航：5 格均分 ===== -->
+          <nav class="bottom-nav" aria-label="主导航">
+            <button class="nav-button active" type="button" data-nav="discover" aria-current="page"><svg viewBox="0 0 24 24"><path d="m3.5 10 8.5-7 8.5 7v9a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1z"/><path d="M9 20v-6h6v6"/></svg><span>发现</span></button>
+            <button class="nav-button" type="button" data-nav="dynamic"><svg viewBox="0 0 24 24"><path d="M5 5.5h14M5 12h14M5 18.5h9"/><circle cx="18" cy="18" r="3"/></svg><span>动态</span></button>
+            <button class="nav-button nav-create" type="button" data-open="create" aria-label="发布动态"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+            <button class="nav-button" type="button" data-nav="messages"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 9 9 0 0 1-3.8-.8L4 20l1.2-3.2A7.2 7.2 0 0 1 4 12c0-4.4 3.6-8 8-8s8 3.4 8 7.5Z"/></svg><span>消息</span></button>
+            <button class="nav-button" type="button" data-nav="profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg><span>我的</span></button>
+          </nav>
+
+          <div class="modal-backdrop" id="createModal" hidden><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="createTitle"><div class="sheet-handle"></div><div class="sheet-head"><h2 id="createTitle">发条动态，找到同好</h2><button class="modal-close" type="button" aria-label="关闭" data-close><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div class="event-preview"><img src="拾光素材/sunlit-room.jpg" alt="阳光下的周末生活"><span>分享你的此刻，也许有人正想一起</span></div><label class="field-label" for="postInput">正在想什么？</label><textarea class="caption-input" id="postInput" maxlength="180" placeholder="周末想去哪里？最近发现什么好玩的？"></textarea><label class="field-label" for="interestInput">加个兴趣标签，让同好找到你</label><input class="date-field" id="interestInput" value="#周末搭子　 #城市探索" maxlength="40"><button class="primary-button" id="publishButton" type="button">发布动态　✦</button></section></div>
+          <div class="modal-backdrop" id="profileModal" hidden><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="profileTitle"><div class="sheet-handle"></div><div class="sheet-head"><h2 id="profileTitle">编辑个人资料</h2><button class="modal-close" type="button" aria-label="关闭" data-close><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><label class="field-label" for="nameInput">昵称</label><input class="date-field" id="nameInput" value="禾木日常" maxlength="18"><label class="field-label" for="bioInput">介绍一下自己</label><textarea class="caption-input" id="bioInput" maxlength="80">喜欢骑行、咖啡和逛展。周末别宅，一起出门玩！</textarea><button class="primary-button" id="saveProfile" type="button">保存资料</button></section></div>
+          <div class="toast" id="toast" role="status" aria-live="polite"></div>
+        </div>
+      </section>
+      <aside class="side-note right">
+        <div class="note-kicker">MEET OFFLINE</div><h2 class="note-title">在线上刷到，<br>在线下玩到。</h2>
+        <p class="note-copy">把兴趣推荐、同城组局和轻社交放进同一个流里。先一起做件喜欢的事，再自然认识彼此。</p>
+        <div class="note-divider"></div><div class="note-kicker">VIDEO IN APP</div>
+        <p class="note-copy" style="margin-top:10px">活动视频在 App 内播放，可最小化为右下角小窗，边看边逛其他页面。</p>
+        <div class="note-divider"></div><div class="note-kicker">COLOR SYSTEM</div><p class="note-copy" style="margin-top:10px">森林绿做识别，薄荷绿做行动。白底与 #797979 正文留足呼吸空间。</p>
+      </aside>
+    </main>
+    <footer class="studio-footer"><span>YEAH CLUB / CONSUMER SOCIAL CONCEPT</span><span>点按体验交互　·　含内置视频小窗</span></footer>
+  </div>
+  <script>
+    (() => {
+      /* ============ 基础引用 ============ */
+      const screens = [...document.querySelectorAll(".screen")];
+      const navButtons = [...document.querySelectorAll(".bottom-nav [data-nav]")];
+      const scrollArea = document.getElementById("scrollArea");
+      const toast = document.getElementById("toast");
+      const backButton = document.getElementById("backButton");
+      let toastTimer;
+      let previousFocus;
+      let navHistory = [];
+      let currentEventKey = "ride";
+      let currentChatName = "七月岛";
+      const modalIds = { create: "createModal", profile: "profileModal" };
+
+      /* ============ 视频状态 ============ */
+      let videoState = { key: null, time: 0, playing: false, minimized: false };
+      let currentVideoKey = "ride";
+      let playerVideoEl = null;
+
+      /* ============ 页面配置 ============ */
+      const screenConfig = {
+        discover: ["野友局", "找到一起玩的人"],
+        dynamic: ["动态广场", "同城的人，正在分享此刻"],
+        city: ["同城", "附近有趣的人和事"],
+        messages: ["消息", "和新朋友聊起来"],
+        profile: ["我的主页", "认识我，从兴趣开始"],
+        search: ["搜索", "搜兴趣、搜活动、搜同好"],
+        notifications: ["通知", "谁在找你玩"],
+        eventDetail: ["活动详情", "看看这场局"],
+        video: ["活动视频", "在 App 内小窗观看"],
+        chat: ["聊天", "友好地打个招呼"],
+        userProfile: ["个人主页", "从兴趣开始认识"],
+        createEvent: ["发起活动", "找几个同好一起玩"],
+        favorites: ["我的收藏", "想去的都在这"],
+        settings: ["设置", "偏好与隐私"]
+      };
+      const tabOf = {
+        discover: "discover", dynamic: "dynamic", city: "discover", messages: "messages", profile: "profile",
+        eventDetail: "discover", search: "discover", notifications: "messages",
+        video: "discover", chat: "messages", userProfile: "dynamic", createEvent: "dynamic",
+        favorites: "profile", settings: "profile"
+      };
+
+      /* ============ 数据 ============ */
+      const eventData = {
+        ride: {
+          title: "沿河骑行，去吹晚风",
+          cover: "拾光素材/river-walk.jpg",
+          badge: "🌿 户外 · 新手友好",
+          summary: "周六傍晚从闻涛路口出发，沿钱塘江绿道骑到日落，全程约 12 km。",
+          time: "周六 16:30 - 19:00",
+          place: "钱塘江绿道 · 闻涛路口",
+          joined: 4,
+          total: 6,
+          fee: "免费参加",
+          host: { key: "ashu", name: "阿树", avatar: "拾光人像素材/man3.jpg", tag: "周末骑行爱好者 · 已组织 12 场活动" },
+          desc: "路线都是绿道，没有机动车，新手也能轻松跟上。骑到日落点会停下来拍照，最后一起去江边吃个夜宵。想来的话记得带头盔和车灯～",
+          video: {
+            src: "https://media.w3.org/2010/05/sintel/trailer.mp4",
+            poster: "拾光素材/river-walk.jpg",
+            platform: "Bilibili",
+            title: "现场实拍 · 钱塘江落日骑行",
+            duration: "02:18"
+          },
+          members: [
+            { key: "ashu", name: "阿树", avatar: "拾光人像素材/man3.jpg" },
+            { key: "xiaoman", name: "小满", avatar: "拾光人像素材/woman2.jpg" },
+            { key: "momo", name: "Momo", avatar: "拾光人像素材/woman4.jpg" },
+            { key: "qiyuedao", name: "七月岛", avatar: "拾光人像素材/woman1.jpg" }
+          ],
+          notice: ["自备自行车与头盔，车灯建议带上", "全程约 12 km，配速 15 km/h 左右", "如遇下雨会提前在群里通知改期"],
+          comments: [
+            { name: "小满", avatar: "拾光人像素材/woman2.jpg", text: "第一次参加骑行，可以跟着你们的节奏吗？", time: "1 小时前" },
+            { name: "阿树", avatar: "拾光人像素材/man3.jpg", text: "完全没问题，我们会留一个人在后面压队～", time: "48 分钟前" }
+          ]
+        },
+        flower: {
+          title: "周日花市散步搭子",
+          cover: "拾光素材/flower-market.jpg",
+          badge: "🎨 城市漫游 · 女生优先",
+          summary: "周日上午逛凤起花鸟城，边走边拍，最后找家店喝杯东西。",
+          time: "周日 10:00 - 12:30",
+          place: "凤起花鸟城 · 正门",
+          joined: 3,
+          total: 5,
+          fee: "AA 制 · 门票免费",
+          host: { key: "xiaoman", name: "小满", avatar: "拾光人像素材/woman2.jpg", tag: "散步搭子 · 喜欢花草和市集" },
+          desc: "没有固定路线，走到哪算哪。可以带相机、也可以空手来，喜欢花的都欢迎。逛完一起去附近喝杯咖啡，聊聊最近在追的东西。",
+          video: {
+            src: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+            poster: "拾光素材/flower-market.jpg",
+            platform: "小红书",
+            title: "花市漫游 · 今天的颜色好温柔",
+            duration: "00:28"
+          },
+          members: [
+            { key: "xiaoman", name: "小满", avatar: "拾光人像素材/woman2.jpg" },
+            { key: "xiaolu", name: "小鹿", avatar: "拾光人像素材/woman3.jpg" },
+            { key: "qiyuedao", name: "七月岛", avatar: "拾光人像素材/woman1.jpg" }
+          ],
+          notice: ["花市人多，注意保管随身物品", "建议穿舒适的鞋，全程步行", "拍摄他人前请先打个招呼"],
+          comments: [
+            { name: "小鹿", avatar: "拾光人像素材/woman3.jpg", text: "我可以带胶片机来吗？想拍一点花花。", time: "2 小时前" },
+            { name: "小满", avatar: "拾光人像素材/woman2.jpg", text: "当然可以！我也正好想拍一卷～", time: "1 小时前" }
+          ]
+        },
+        cafe: {
+          title: "滨江新店盲测小分队",
+          cover: "拾光素材/cafe-window.jpg",
+          badge: "☕ 咖啡 · 还差 1 人",
+          summary: "周日下午连刷三家新店，各点一杯手冲，最后投票选出最爱。",
+          time: "周日 14:00 - 17:00",
+          place: "滨江 · 老街咖啡集合点",
+          joined: 5,
+          total: 6,
+          fee: "AA 制 · 人均约 80",
+          host: { key: "qiyuedao", name: "七月岛", avatar: "拾光人像素材/woman1.jpg", tag: "咖啡脑袋 · 已组织 6 场探店" },
+          desc: "三家店都在步行 10 分钟内，边喝边聊，喜欢手冲或者单纯想认识人的都可以来。我们会准备一张小评分表，最后一起选出这次的 Top 1。",
+          video: {
+            src: "https://www.w3schools.com/html/mov_bbb.mp4",
+            poster: "拾光素材/cafe-window.jpg",
+            platform: "抖音",
+            title: "滨江新店盲测 · 三家连喝",
+            duration: "01:02"
+          },
+          members: [
+            { key: "qiyuedao", name: "七月岛", avatar: "拾光人像素材/woman1.jpg" },
+            { key: "momo", name: "Momo", avatar: "拾光人像素材/woman4.jpg" },
+            { key: "ashu", name: "阿树", avatar: "拾光人像素材/man3.jpg" },
+            { key: "xiaolu", name: "小鹿", avatar: "拾光人像素材/woman3.jpg" },
+            { key: "xiaoman", name: "小满", avatar: "拾光人像素材/woman2.jpg" }
+          ],
+          notice: ["咖啡因敏感的朋友可以点无咖啡因", "费用现场 AA，扫码即可", "临时来不了请提前在群里说一声"],
+          comments: [
+            { name: "Momo", avatar: "拾光人像素材/woman4.jpg", text: "上周去过其中一家，抹茶真的很绝！", time: "3 小时前" }
+          ]
+        }
+      };
+
+      const users = {
+        qiyuedao: {
+          name: "七月岛", avatar: "拾光人像素材/woman1.jpg", cover: "拾光素材/cafe-window.jpg",
+          badge: "☕ 咖啡脑袋", city: "杭州 · 滨江",
+          bio: "咖啡和城市散步爱好者。喜欢在陌生的街道上，找到一家可以坐一下午的小店。",
+          stats: { posts: 46, fans: 892, following: 156, events: 9 },
+          tags: ["咖啡探店", "城市漫步", "手冲"],
+          posts: [
+            { time: "18 分钟前", place: "滨江 · 850 m", text: "在老街发现一家被阳光照亮的小店，手冲和巴斯克都很不错。下次想带相机来慢慢坐 ☕", image: "拾光素材/cafe-window.jpg", likes: 42, comments: 12 },
+            { time: "3 天前", place: "滨江 · 老街", text: "新到的豆子有很明显的柑橘味，冲的时候整个屋子都是香的。", image: "拾光素材/sunlit-room.jpg", likes: 27, comments: 5 }
+          ]
+        },
+        ashu: {
+          name: "阿树", avatar: "拾光人像素材/man3.jpg", cover: "拾光素材/river-walk.jpg",
+          badge: "🚲 骑行玩家", city: "杭州 · 上城",
+          bio: "周末基本都在路上。骑行、徒步、偶尔露营，欢迎新手一起加入。",
+          stats: { posts: 68, fans: 1420, following: 203, events: 12 },
+          tags: ["周末骑行", "户外搭子", "徒步"],
+          posts: [
+            { time: "5 分钟前", place: "钱塘江绿道 · 2.1 km", text: "沿着钱塘江骑到日落，风刚刚好。下周还想再出发，有没有新手友好的骑行搭子？🚲", image: "拾光素材/river-walk.jpg", likes: 28, comments: 6 }
+          ]
+        },
+        xiaolu: {
+          name: "小鹿", avatar: "拾光人像素材/woman3.jpg", cover: "拾光素材/flower-market.jpg",
+          badge: "📷 胶片玩家", city: "杭州 · 西湖",
+          bio: "喜欢花草、胶片和一切慢慢来的事情。常出没在花市和老街。",
+          stats: { posts: 39, fans: 615, following: 188, events: 7 },
+          tags: ["城市漫游", "花市拍照", "胶片"],
+          posts: [
+            { time: "32 分钟前", place: "凤起花鸟城 · 1.3 km", text: "早起去花市逛了一圈，今天的颜色都好温柔。下次想约几个朋友一起边走边拍 📷🌼", image: "拾光素材/flower-market.jpg", likes: 19, comments: 4 }
+          ]
+        },
+        momo: {
+          name: "Momo", avatar: "拾光人像素材/woman4.jpg", cover: "拾光素材/city-evening.jpg",
+          badge: "🍰 甜品雷达", city: "杭州 · 滨江",
+          bio: "甜品店打卡中。也喜欢看展和拍照，周末基本不在家。",
+          stats: { posts: 52, fans: 734, following: 240, events: 11 },
+          tags: ["甜品探店", "逛展", "拍照"],
+          posts: [
+            { time: "昨天", place: "滨江 · 1.2 km", text: "这家的抹茶千层真的绝了，微苦回甘，值得专门跑一趟。🍵", image: "拾光素材/sunlit-room.jpg", likes: 33, comments: 9 }
+          ]
+        },
+        xiaoman: {
+          name: "小满", avatar: "拾光人像素材/woman2.jpg", cover: "拾光素材/flower-market.jpg",
+          badge: "🌼 散步搭子", city: "杭州 · 拱墅",
+          bio: "喜欢逛市集、散步和一切不赶时间的事。周末常组小局。",
+          stats: { posts: 31, fans: 508, following: 132, events: 8 },
+          tags: ["散步", "市集", "花市"],
+          posts: [
+            { time: "2 小时前", place: "凤起花鸟城", text: "周日想再去一次花市，有人一起吗？顺便拍点照片～🌼", image: "拾光素材/flower-market.jpg", likes: 21, comments: 7 }
+          ]
+        }
+      };
+
+      const chatData = {
+        "七月岛": { sub: "咖啡爱好者 · 在线", messages: [
+          { me: false, text: "嗨！看到你也收藏了那家新开的咖啡店～" },
+          { me: true, text: "对！周日打算去看看，你也会去吗？" },
+          { me: false, text: "会呀，那家店门口 14:00 见？" },
+          { me: true, text: "好呀，我带上相机 📷" },
+          { me: false, text: "好呀！周日那家店门口见～" }
+        ]},
+        "阿树": { sub: "周末骑行爱好者 · 在线", messages: [
+          { me: false, text: "骑行路线我发群里啦，都是绿道" },
+          { me: false, text: "全程 12 km，配速不快，你放心来" },
+          { me: true, text: "收到！我带车灯和头盔" },
+          { me: false, text: "那周六 16:30 闻涛路口集合 👌" }
+        ]},
+        "小鹿": { sub: "胶片摄影爱好者", messages: [
+          { me: false, text: "同城活动：周日花市散步搭子" },
+          { me: false, text: "我会带胶片机，可以帮大家拍一点" },
+          { me: true, text: "太好了，正好想拍一组花花 🌼" }
+        ]},
+        "Momo": { sub: "甜品雷达", messages: [
+          { me: false, text: "谢谢推荐！那家店的抹茶真的很绝" },
+          { me: true, text: "下次一起去，我还想试他家的千层" },
+          { me: false, text: "好呀好呀，周末约 ☕" }
+        ]},
+        "周末骑行小分队": { sub: "6 人 · 群聊", messages: [
+          { me: false, text: "阿树：周六的路线图我放群公告了" },
+          { me: false, text: "小满：我可以带一个朋友一起吗？" },
+          { me: true, text: "当然可以，人多热闹 🚲" }
+        ]}
+      };
+
+      const searchIndex = [
+        { type: "活动", title: "沿河骑行，去吹晚风", sub: "周六 16:30 · 钱塘江绿道 · 4/6 人", go: "eventDetail", arg: "ride" },
+        { type: "活动", title: "周日花市散步搭子", sub: "周日 10:00 · 凤起花鸟城 · 3/5 人", go: "eventDetail", arg: "flower" },
+        { type: "活动", title: "滨江新店盲测小分队", sub: "周日 14:00 · 滨江 · 还差 1 人", go: "eventDetail", arg: "cafe" },
+        { type: "用户", title: "七月岛", sub: "咖啡爱好者 · 杭州滨江", go: "userProfile", arg: "qiyuedao" },
+        { type: "用户", title: "阿树", sub: "周末骑行爱好者 · 杭州", go: "userProfile", arg: "ashu" },
+        { type: "用户", title: "小鹿", sub: "花草与胶片摄影 · 杭州", go: "userProfile", arg: "xiaolu" },
+        { type: "用户", title: "Momo", sub: "甜品与逛展 · 杭州", go: "userProfile", arg: "momo" },
+        { type: "用户", title: "小满", sub: "散步搭子 · 杭州", go: "userProfile", arg: "xiaoman" },
+        { type: "小组", title: "杭州周末户外局", sub: "1,284 位同城玩家" },
+        { type: "小组", title: "城市街拍搭子", sub: "682 位同城玩家" }
+      ];
+
+      /* ============ 通用交互 ============ */
+      function showToast(message) {
+        if (!message) return;
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 2100);
+      }
+      function openModal(id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+        previousFocus = document.activeElement;
+        modal.hidden = false;
+        requestAnimationFrame(() => {
+          modal.classList.add("open");
+          modal.querySelector("button,textarea,input")?.focus();
+        });
+      }
+      function closeModal(modal) {
+        if (!modal || modal.hidden) return;
+        modal.classList.remove("open");
+        setTimeout(() => { modal.hidden = true; }, 230);
+        previousFocus?.focus?.();
+      }
+      function updateBackButton() {
+        backButton.hidden = navHistory.length === 0;
+      }
+      function goBack() {
+        const prev = navHistory.pop();
+        if (!prev) return;
+        navigate(prev, { push: false });
+      }
+
+      /* ============ 导航 ============ */
+      function navigate(name, opts = {}) {
+        const target = screens.find(s => s.dataset.screen === name);
+        if (!target) return;
+
+        const current = document.querySelector(".screen.active")?.dataset.screen;
+        if (opts.reset) navHistory = [];
+        else if (opts.push && current && current !== name) navHistory.push(current);
+
+        // 离开视频页时暂停（除非已最小化到小窗）
+        if (current === "video" && name !== "video" && !videoState.minimized) {
+          const v = document.getElementById("mainVideo");
+          if (v) v.pause();
+        }
+
+        screens.forEach(s => {
+          s.hidden = s !== target;
+          s.classList.toggle("active", s === target);
+        });
+
+        const tab = tabOf[name] || name;
+        navButtons.forEach(btn => {
+          const active = btn.dataset.nav === tab;
+          btn.classList.toggle("active", active);
+          if (active) btn.setAttribute("aria-current", "page");
+          else btn.removeAttribute("aria-current");
+        });
+
+        scrollArea.scrollTop = 0;
+
+        const cfg = screenConfig[name] || [name, ""];
+        document.getElementById("topbarTitle").innerHTML =
+          `<div class="top-title">${cfg[0]}<span> ·</span></div><div class="top-subtitle">${cfg[1]}</div>`;
+
+        if (name === "eventDetail") renderEventDetail(opts.arg || "ride");
+        if (name === "video") renderVideo(opts.arg || currentVideoKey || "ride");
+        if (name === "userProfile") renderUserProfile(opts.arg || "qiyuedao");
+        if (name === "chat") renderChat(opts.arg || "七月岛");
+        if (name === "search") renderSearch(document.getElementById("searchInput").value);
+
+        updateBackButton();
+      }
+
+      /* ============ 视频逻辑 ============ */
+      function openVideo(key) {
+        if (!eventData[key]?.video) return;
+        closeMiniPlayer();
+        videoState = { key, time: 0, playing: false, minimized: false };
+        currentVideoKey = key;
+        navigate("video", { push: true, arg: key });
+      }
+
+      function renderVideo(key) {
+        const ev = eventData[key];
+        if (!ev || !ev.video) { navigate("discover", { reset: true }); return; }
+        currentVideoKey = key;
+        const v = ev.video;
+        const miniVideo = document.querySelector("#miniVideoHolder video");
+        const body = document.getElementById("videoBody");
+
+        body.innerHTML = `
+          <div class="video-stage" id="videoStage">
+            <video id="mainVideo" controls playsinline preload="metadata" poster="${v.poster}" src="${v.src}"></video>
+            <button class="video-minimize" type="button" data-minimize aria-label="最小化播放">
+              <svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>
+            </button>
+          </div>
+          <div class="video-platform">
+            <span>来自 <strong>${v.platform}</strong> · 原型演示</span>
+            <button class="text-link" type="button" data-toast="已尝试跳转 ${v.platform}（原型演示）">在原平台打开 ↗</button>
+          </div>
+          <div class="video-meta">
+            <h1 class="detail-title">${v.title}</h1>
+            <p class="detail-sub">${ev.title} · ${ev.time} · ${ev.place}</p>
+          </div>
+          <div class="video-actions">
+            <button class="primary-button" type="button" data-go="eventDetail" data-arg="${key}">查看活动详情</button>
+            <button class="ghost-button" type="button" data-toast="已收藏这场活动">☆ 收藏</button>
+          </div>
+          <div class="block-card">
+            <h3 class="block-title">边看边聊 <small>${ev.comments.length} 条</small></h3>
+            ${ev.comments.map(c => `
+              <div class="comment">
+                <span class="avatar"><img src="${c.avatar}" alt=""></span>
+                <span class="comment-body"><strong>${c.name}</strong><p>${c.text}</p><small>${c.time}</small></span>
+              </div>`).join("")}
+          </div>
+          <p class="video-hint">视频内容来自 ${v.platform}，在野友局内以小窗播放；点右上角“—”可最小化，继续浏览其他页面。</p>
+        `;
+
+        const stage = document.getElementById("videoStage");
+        let video = document.getElementById("mainVideo");
+        if (miniVideo) {
+          video.remove();
+          miniVideo.setAttribute("controls", "");
+          stage.appendChild(miniVideo);
+          video = miniVideo;
+          video.currentTime = videoState.time || 0;
+        }
+        playerVideoEl = video;
+        video.addEventListener("timeupdate", () => {
+          videoState.time = video.currentTime;
+          videoState.playing = !video.paused;
+        });
+        video.addEventListener("play", () => { videoState.playing = true; });
+        video.addEventListener("pause", () => { videoState.playing = false; });
+        if (videoState.playing) video.play().catch(() => {});
+      }
+
+      function minimizeVideo() {
+        const video = document.getElementById("mainVideo") || document.querySelector("#videoStage video");
+        if (!video) return;
+        videoState.key = currentVideoKey;
+        videoState.time = video.currentTime;
+        videoState.playing = !video.paused;
+        videoState.minimized = true;
+
+        const holder = document.getElementById("miniVideoHolder");
+        holder.innerHTML = "";
+        video.removeAttribute("controls");
+        holder.appendChild(video);
+        document.getElementById("miniPlayer").hidden = false;
+        document.getElementById("miniTitle").textContent = eventData[currentVideoKey]?.video?.title || "活动视频";
+
+        const prev = navHistory.pop() || "discover";
+        navigate(prev, { push: false });
+        if (videoState.playing) video.play().catch(() => {});
+        showToast("已最小化，继续浏览吧");
+      }
+
+      function expandVideo() {
+        const mini = document.getElementById("miniPlayer");
+        if (mini.hidden) return;
+        const video = mini.querySelector("video");
+        if (video) videoState.time = video.currentTime;
+        videoState.minimized = false;
+        mini.hidden = true;
+        navigate("video", { push: true, arg: videoState.key || currentVideoKey || "ride" });
+      }
+
+      function closeMiniPlayer() {
+        const holder = document.getElementById("miniVideoHolder");
+        const video = holder.querySelector("video");
+        if (video) {
+          video.pause();
+          video.removeAttribute("src");
+          video.load();
+          video.remove();
+        }
+        document.getElementById("miniPlayer").hidden = true;
+        videoState.minimized = false;
+        videoState.playing = false;
+      }
+
+      /* ============ 渲染：活动详情 ============ */
+      function renderEventDetail(key) {
+        const ev = eventData[key] || eventData.ride;
+        currentEventKey = key in eventData ? key : "ride";
+        const remain = ev.total - ev.joined;
+        const videoBlock = ev.video ? `
+          <div class="block-card">
+            <h3 class="block-title">活动视频 <small>来自 ${ev.video.platform}</small></h3>
+            <button class="video-preview" type="button" data-video="${key}">
+              <span class="video-thumb">
+                <img src="${ev.video.poster}" alt="">
+                <i class="play-badge">▶</i>
+              </span>
+              <span class="video-preview-copy">
+                <strong>${ev.video.title}</strong>
+                <small>${ev.video.platform} · ${ev.video.duration} · 点击在 App 内观看</small>
+              </span>
+              <span class="result-arrow">›</span>
+            </button>
+          </div>` : "";
+        document.getElementById("eventDetailBody").innerHTML = `
+          <div class="detail-cover">
+            <img src="${ev.cover}" alt="${ev.title}">
+            <span class="cover-badge">${ev.badge}</span>
+          </div>
+          <div class="detail-head">
+            <h1 class="detail-title">${ev.title}</h1>
+            <p class="detail-sub">${ev.summary}</p>
+          </div>
+          <div class="detail-grid">
+            <div class="info-tile"><small>活动时间</small><strong>${ev.time}</strong></div>
+            <div class="info-tile"><small>集合地点</small><strong>${ev.place}</strong></div>
+            <div class="info-tile"><small>报名情况</small><strong><span class="joined-count">${ev.joined}</span> / ${ev.total} 人</strong></div>
+            <div class="info-tile"><small>费用</small><strong>${ev.fee}</strong></div>
+          </div>
+          <div class="block-card">
+            <div class="host-row">
+              <span class="avatar" data-user="${ev.host.key}"><img src="${ev.host.avatar}" alt="${ev.host.name}"></span>
+              <span class="host-copy"><strong>${ev.host.name}</strong><small>${ev.host.tag}</small></span>
+              <button class="follow-button" type="button" aria-pressed="false">＋ 关注</button>
+            </div>
+          </div>
+          ${videoBlock}
+          <div class="block-card">
+            <h3 class="block-title">活动介绍</h3>
+            <p class="body-text">${ev.desc}</p>
+          </div>
+          <div class="block-card">
+            <h3 class="block-title">谁要来 <small>${ev.joined} 人已加入</small></h3>
+            <div class="member-row">
+              ${ev.members.map(m => `<span class="avatar" data-user="${m.key}" title="${m.name}"><img src="${m.avatar}" alt="${m.name}"></span>`).join("")}
+              <span class="avatar plus" title="剩余名额">＋${remain}</span>
+            </div>
+          </div>
+          <div class="block-card">
+            <h3 class="block-title">活动须知</h3>
+            <ul class="check-list">${ev.notice.map(n => `<li>${n}</li>`).join("")}</ul>
+          </div>
+          <div class="block-card">
+            <h3 class="block-title">聊两句 <small>${ev.comments.length} 条评论</small></h3>
+            ${ev.comments.map(c => `
+              <div class="comment">
+                <span class="avatar"><img src="${c.avatar}" alt=""></span>
+                <span class="comment-body"><strong>${c.name}</strong><p>${c.text}</p><small>${c.time}</small></span>
+              </div>`).join("")}
+          </div>
+          <div class="detail-cta">
+            <button class="join-button" type="button" aria-pressed="false">加入这个局　＋</button>
+            <button class="ghost-button" type="button" data-toast="已收藏，活动开始前会提醒你">☆ 收藏</button>
+          </div>
+          <p class="body-text" style="text-align:center;color:#A4ABA4;font-size:7.5px;margin-bottom:8px">加入后可在「消息」里和发起人沟通</p>
+        `;
+      }
+
+      /* ============ 渲染：他人主页 ============ */
+      function renderUserProfile(key) {
+        const u = users[key] || users.qiyuedao;
+        document.getElementById("userProfileBody").innerHTML = `
+          <div class="profile-cover" style="margin-top:14px"><img src="${u.cover}" alt=""></div>
+          <div class="profile-avatar"><img src="${u.avatar}" alt="${u.name}"></div>
+          <div class="profile-name"><strong>${u.name}</strong><span class="profile-badge">${u.badge}</span></div>
+          <p class="profile-bio">${u.bio}<br>📍 ${u.city}</p>
+          <div class="profile-stats">
+            <div><strong>${u.stats.posts}</strong><small>动态</small></div>
+            <div><strong>${u.stats.fans}</strong><small>粉丝</small></div>
+            <div><strong>${u.stats.following}</strong><small>关注</small></div>
+            <div><strong>${u.stats.events}</strong><small>参加活动</small></div>
+          </div>
+          <div class="detail-cta">
+            <button class="primary-button" type="button" data-chat-user="${u.name}" style="flex:1">发消息　→</button>
+            <button class="ghost-button follow-button" type="button" aria-pressed="false">＋ 关注</button>
+          </div>
+          <div class="section-heading"><h2>TA 的兴趣</h2><small>${u.city}</small></div>
+          <div class="feed-tags" style="margin-top:0">${u.tags.map(t => `<span class="feed-tag">#${t}</span>`).join("")}</div>
+          <div class="section-heading"><h2>TA 的动态</h2><small>最近更新</small></div>
+          ${u.posts.map(p => `
+            <article class="social-card">
+              <div class="social-head">
+                <span class="avatar"><img src="${u.avatar}" alt="${u.name}"></span>
+                <span class="social-copy"><strong>${u.name}　<span style="color:#8DAB97;font-weight:400">· ${p.time}</span></strong><small>${p.place}</small></span>
+              </div>
+              <p class="social-text">${p.text}</p>
+              ${p.image ? `<img class="social-image" src="${p.image}" alt="">` : ""}
+              <div class="social-actions">
+                <button class="action-button like-button" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M20.5 8.8c0 5.3-8.5 10.3-8.5 10.3S3.5 14.1 3.5 8.8a4.5 4.5 0 0 1 8.5-2 4.5 4.5 0 0 1 8.5 2Z"/></svg><span class="count">${p.likes}</span></button>
+                <button class="action-button" type="button" data-toast="这里有 ${p.comments} 条评论"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 9 9 0 0 1-3.8-.8L4 20l1.2-3.2A7.2 7.2 0 0 1 4 12c0-4.4 3.6-8 8-8s8 3.4 8 7.5Z"/></svg><span>${p.comments}</span></button>
+              </div>
+            </article>`).join("")}
+        `;
+      }
+
+      /* ============ 渲染：聊天 ============ */
+      function renderChat(name) {
+        const conv = chatData[name];
+        const messages = conv ? conv.messages : [
+          { me: false, text: `嗨，我是${name}。看到你也对周末活动感兴趣～` },
+          { me: false, text: "有空一起出来玩呀！" }
+        ];
+        currentChatName = name;
+        document.getElementById("chatBody").innerHTML =
+          `<div class="chat-day">今天</div>` +
+          messages.map(m => `<div class="bubble ${m.me ? "me" : ""}">${m.text}</div>`).join("");
+        document.getElementById("topbarTitle").innerHTML =
+          `<div class="top-title">${name}</div><div class="top-subtitle">${conv ? conv.sub : "同城玩家"}</div>`;
+        setTimeout(() => { scrollArea.scrollTop = scrollArea.scrollHeight; }, 30);
+      }
+      function appendBubble(text, mine) {
+        const body = document.getElementById("chatBody");
+        const bubble = document.createElement("div");
+        bubble.className = "bubble" + (mine ? " me" : "");
+        bubble.textContent = text;
+        body.append(bubble);
+        scrollArea.scrollTop = scrollArea.scrollHeight;
+      }
+      function sendChatMessage() {
+        const input = document.getElementById("chatInput");
+        const text = input.value.trim();
+        if (!text) { showToast("先说点什么吧"); input.focus(); return; }
+        appendBubble(text, true);
+        input.value = "";
+        setTimeout(() => {
+          const replies = ["好呀！那我们到时候见～", "收到，我把地址发你", "哈哈可以，我也正想说这个", "没问题，人多更热闹 🙌"];
+          appendBubble(replies[Math.floor(Math.random() * replies.length)], false);
+        }, 850);
+      }
+
+      /* ============ 渲染：搜索 ============ */
+      function renderSearch(query) {
+        const q = (query || "").trim();
+        const results = document.getElementById("searchResults");
+        const title = document.getElementById("searchResultTitle");
+        const countEl = document.getElementById("searchResultCount");
+        let list = searchIndex;
+        if (q) {
+          const lower = q.toLowerCase();
+          list = searchIndex.filter(i => (i.title + i.sub + i.type).toLowerCase().includes(lower));
+        }
+        title.textContent = q ? `“${q}” 的结果` : "猜你想去";
+        countEl.textContent = `${list.length} 条`;
+        results.innerHTML = list.length
+          ? list.map(i => `
+            <button class="result-item" type="button" ${i.go ? `data-go="${i.go}"` : `data-toast="小组详情即将开放"`} ${i.arg ? `data-arg="${i.arg}"` : ""}>
+              <span class="result-type">${i.type}</span>
+              <span class="result-copy"><strong>${i.title}</strong><small>${i.sub}</small></span>
+              <span class="result-arrow">›</span>
+            </button>`).join("")
+          : `<div class="feed-empty">没有找到相关结果，换个词试试吧。</div>`;
+      }
+
+      /* ============ 事件委托 ============ */
+      document.addEventListener("click", event => {
+        // 关闭弹窗
+        const closer = event.target.closest("[data-close]");
+        if (closer) { closeModal(closer.closest(".modal-backdrop")); return; }
+        if (event.target.classList.contains("modal-backdrop")) { closeModal(event.target); return; }
+
+        // 视频入口（优先于卡片点击）
+        const videoTrigger = event.target.closest("[data-video]");
+        if (videoTrigger) { openVideo(videoTrigger.dataset.video); return; }
+
+        // 视频页最小化
+        if (event.target.closest("[data-minimize]")) { minimizeVideo(); return; }
+
+        // 迷你播放器控制
+        if (event.target.closest("#miniExpand")) { expandVideo(); return; }
+        if (event.target.closest("#miniClose")) { closeMiniPlayer(); return; }
+        if (event.target.closest("#miniVideoHolder")) { expandVideo(); return; }
+
+        // 导航
+        const nav = event.target.closest("[data-nav]");
+        if (nav) {
+          const isTab = !!nav.closest(".bottom-nav");
+          navigate(nav.dataset.nav, isTab ? { reset: true } : { push: true });
+          return;
+        }
+
+        const go = event.target.closest("[data-go]");
+        if (go) { navigate(go.dataset.go, { push: true, arg: go.dataset.arg }); return; }
+
+        const opener = event.target.closest("[data-open]");
+        if (opener) { openModal(modalIds[opener.dataset.open]); return; }
+
+        // 活动卡片
+        const card = event.target.closest("[data-event]");
+        if (card && !event.target.closest("button")) {
+          navigate("eventDetail", { push: true, arg: card.dataset.event });
+          return;
+        }
+
+        // 用户头像 / 主页
+        const userEl = event.target.closest("[data-user]");
+        if (userEl && !event.target.closest("button")) {
+          navigate("userProfile", { push: true, arg: userEl.dataset.user });
+          return;
+        }
+
+        // 去聊天
+        const chatUser = event.target.closest("[data-chat-user]");
+        if (chatUser) {
+          navigate("chat", { push: true, arg: chatUser.dataset.chatUser });
+          return;
+        }
+
+        // 通用 toast
+        const toastTarget = event.target.closest("[data-toast]");
+        if (toastTarget) showToast(toastTarget.dataset.toast);
+
+        // 点赞
+        const like = event.target.closest(".like-button");
+        if (like) {
+          const liked = like.classList.toggle("liked");
+          like.setAttribute("aria-pressed", String(liked));
+          const count = like.querySelector(".count");
+          if (count) count.textContent = String(Number(count.textContent) + (liked ? 1 : -1));
+          if (liked) {
+            const box = like.getBoundingClientRect();
+            for (let i = 0; i < 5; i++) {
+              const dot = document.createElement("i");
+              dot.className = "sparkle";
+              dot.style.left = `${box.left + box.width / 2}px`;
+              dot.style.top = `${box.top + box.height / 2}px`;
+              dot.style.setProperty("--dx", `${(Math.random() - .5) * 46}px`);
+              dot.style.setProperty("--dy", `${-12 - Math.random() * 30}px`);
+              document.body.appendChild(dot);
+              setTimeout(() => dot.remove(), 750);
+            }
+          }
+        }
+
+        // 关注
+        const follow = event.target.closest(".follow-button");
+        if (follow) {
+          const following = follow.classList.toggle("following");
+          follow.setAttribute("aria-pressed", String(following));
+          follow.textContent = following ? "✓ 已关注" : "＋ 关注";
+          showToast(following ? "已关注，TA 的新动态会出现在推荐里" : "已取消关注");
+          const activeFeedFilter = document.querySelector("[data-feed-filter].active");
+          if (activeFeedFilter) applyFeedFilter(activeFeedFilter.dataset.feedFilter);
+        }
+
+        // 加入活动
+        const join = event.target.closest(".join-button");
+        if (join) {
+          if (!join.dataset.label) join.dataset.label = join.textContent.trim();
+          const joined = join.classList.toggle("joined");
+          join.setAttribute("aria-pressed", String(joined));
+          join.textContent = joined ? "已加入 ✓" : join.dataset.label;
+          const scope = join.closest(".card-content") || join.closest('[data-screen="eventDetail"]');
+          const count = scope?.querySelector(".joined-count");
+          if (count) count.textContent = String(Number(count.textContent) + (joined ? 1 : -1));
+          document.querySelectorAll(`[data-event="${currentEventKey}"] .joined-count`).forEach(el => {
+            if (el === count) return;
+            el.textContent = String(Math.max(0, Number(el.textContent) + (joined ? 1 : -1)));
+          });
+          showToast(joined ? "加入成功，活动详情已发到消息" : "已退出活动");
+        }
+
+        // 消息列表 → 聊天页
+        const chatRow = event.target.closest(".chat-row");
+        if (chatRow) {
+          navigate("chat", { push: true, arg: chatRow.dataset.chat });
+          return;
+        }
+
+        // 设置开关
+        const sw = event.target.closest(".switch");
+        if (sw) {
+          const on = sw.classList.toggle("on");
+          sw.setAttribute("aria-pressed", String(on));
+        }
+      });
+
+      /* ============ 键盘 ============ */
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          const openModalEl = document.querySelector(".modal-backdrop:not([hidden])");
+          if (openModalEl) { closeModal(openModalEl); return; }
+          if (navHistory.length) goBack();
+        }
+      });
+      document.querySelectorAll(".modal-backdrop .sheet").forEach(sheet =>
+        sheet.addEventListener("click", event => event.stopPropagation())
+      );
+
+      /* ============ 返回按钮 ============ */
+      backButton.addEventListener("click", goBack);
+
+      /* ============ 兴趣筛选 ============ */
+      document.querySelectorAll(".topic-chip").forEach(button => button.addEventListener("click", () => {
+        document.querySelectorAll(".topic-chip").forEach(item => {
+          item.classList.toggle("active", item === button);
+          item.setAttribute("aria-pressed", String(item === button));
+        });
+        const filter = button.dataset.filter;
+        let visible = 0;
+        document.querySelectorAll('[data-screen="discover"] [data-category]').forEach(card => {
+          const match = filter === "全部" || card.dataset.category === filter || (filter === "逛展" && card.textContent.includes("花市"));
+          card.hidden = !match;
+          if (match) visible++;
+        });
+        document.getElementById("emptyNote").style.display = visible ? "none" : "block";
+      }));
+
+      /* ============ 动态筛选 ============ */
+      function applyFeedFilter(filter) {
+        let visibleCount = 0;
+        document.querySelectorAll('[data-screen="dynamic"] .feed-card').forEach(card => {
+          const followed = card.dataset.own === "true" || card.querySelector(".follow-button")?.classList.contains("following");
+          const match = filter === "全部" || (filter === "关注" ? followed : card.dataset.feedCategory === filter);
+          card.hidden = !match;
+          if (match) visibleCount++;
+        });
+        document.querySelector('[data-screen="dynamic"] .feed-empty').hidden = visibleCount > 0;
+      }
+      document.querySelectorAll("[data-feed-filter]").forEach(button => button.addEventListener("click", () => {
+        document.querySelectorAll("[data-feed-filter]").forEach(item => {
+          const active = item === button;
+          item.classList.toggle("active", active);
+          item.setAttribute("aria-pressed", String(active));
+        });
+        applyFeedFilter(button.dataset.feedFilter);
+      }));
+
+      /* ============ 发布动态 ============ */
+      document.getElementById("publishButton").addEventListener("click", () => {
+        const input = document.getElementById("postInput");
+        const content = input.value.trim();
+        const tags = document.getElementById("interestInput").value.trim();
+        if (!content) {
+          input.focus();
+          showToast("写下一点有趣的事，再发给同好吧");
+          return;
+        }
+        const post = document.createElement("article");
+        post.className = "social-card feed-card";
+        post.dataset.feedCategory = "户外";
+        post.dataset.own = "true";
+        post.innerHTML = `<div class="social-head"><span class="avatar"><img src="拾光人像素材/man4.jpg" alt="禾木日常头像"></span><span class="social-copy"><strong>禾木日常　<span style="color:#8DAB97;font-weight:400">· 刚刚</span></strong><small>杭州 · 正在认识新朋友</small></span></div><p class="social-text" data-post-text></p><div class="feed-tags" data-post-tags hidden></div><div class="social-actions"><button class="action-button like-button" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M20.5 8.8c0 5.3-8.5 10.3-8.5 10.3S3.5 14.1 3.5 8.8a4.5 4.5 0 0 1 8.5-2 4.5 4.5 0 0 1 8.5 2Z"/></svg><span class="count">0</span></button><button class="action-button" type="button" data-toast="评论功能已打开">♡ <span>评论</span></button><button class="action-button" type="button" data-toast="动态已分享给你的好友">↗ <span>分享</span></button></div>`;
+        post.querySelector("[data-post-text]").textContent = content;
+        if (tags) {
+          const tagList = post.querySelector("[data-post-tags]");
+          tags.split(/\s+/).filter(Boolean).forEach(tag => {
+            const chip = document.createElement("span");
+            chip.className = "feed-tag";
+            chip.textContent = tag.startsWith("#") ? tag : `#${tag}`;
+            tagList.append(chip);
+          });
+          tagList.hidden = false;
+        }
+        const feed = document.querySelector('[data-screen="dynamic"]');
+        feed.insertBefore(post, feed.querySelector(".feed-card"));
+        input.value = "";
+        closeModal(document.getElementById("createModal"));
+        navigate("dynamic", { reset: true });
+        showToast("动态已发布，去认识新朋友吧 ✦");
+      });
+
+      /* ============ 保存资料 ============ */
+      document.getElementById("saveProfile").addEventListener("click", () => {
+        const name = document.getElementById("nameInput").value.trim() || "禾木日常";
+        document.getElementById("profileName").textContent = name;
+        document.getElementById("profileBio").textContent = document.getElementById("bioInput").value.trim();
+        closeModal(document.getElementById("profileModal"));
+        showToast("个人资料已更新");
+      });
+
+      /* ============ 发起活动 ============ */
+      document.querySelectorAll("#evTypes button").forEach(btn => btn.addEventListener("click", () => {
+        document.querySelectorAll("#evTypes button").forEach(b => b.classList.toggle("on", b === btn));
+      }));
+      document.getElementById("publishEvent").addEventListener("click", () => {
+        const titleInput = document.getElementById("evTitle");
+        const title = titleInput.value.trim();
+        if (!title) { titleInput.focus(); showToast("先给活动起个名字吧"); return; }
+        const typeBtn = document.querySelector("#evTypes button.on");
+        const typeText = typeBtn ? typeBtn.textContent.trim() : "🌿 户外";
+        const time = document.getElementById("evTime").value;
+        const place = document.getElementById("evPlace").value.trim() || "杭州 · 待定";
+        const limit = document.getElementById("evLimit").value || 6;
+        const card = document.createElement("article");
+        card.className = "event-card";
+        card.dataset.category = typeText.includes("咖啡") ? "咖啡" : typeText.includes("运动") ? "运动" : "户外";
+        card.innerHTML = `
+          <div class="card-cover" style="height:130px">
+            <img src="拾光素材/sunlit-room.jpg" alt="">
+            <span class="cover-badge">${typeText} · 刚刚发布</span>
+            <div class="cover-caption"><strong>${title}</strong><small>${time ? time.replace("T", " ") : "时间待定"} · ${place}</small></div>
+          </div>
+          <div class="card-content">
+            <div class="host-row">
+              <span class="avatar"><img src="拾光人像素材/man4.jpg" alt="禾木日常"></span>
+              <span class="host-copy"><strong>禾木日常　·　我发起的</strong><small>限 ${limit} 人　·　${place}</small></span>
+              <button class="join-button" type="button" aria-pressed="false">邀请　＋</button>
+            </div>
+            <div class="event-meta"><span>👥 <b class="joined-count">1</b> / ${limit} 人</span><span>⌖ 同城</span><span>等待加入</span></div>
+          </div>`;
+        document.getElementById("cityHotList").prepend(card);
+        titleInput.value = "";
+        document.getElementById("evPlace").value = "";
+        document.getElementById("evDesc").value = "";
+        navigate("city", { reset: true });
+        showToast("活动已发布，等同好来加入 ✦");
+      });
+
+      /* ============ 搜索交互 ============ */
+      document.getElementById("searchInput").addEventListener("input", e => renderSearch(e.target.value));
+      document.querySelectorAll("[data-search]").forEach(btn => btn.addEventListener("click", () => {
+        const input = document.getElementById("searchInput");
+        input.value = btn.dataset.search;
+        renderSearch(btn.dataset.search);
+      }));
+
+      /* ============ 聊天发送 ============ */
+      document.getElementById("chatSend").addEventListener("click", sendChatMessage);
+      document.getElementById("chatInput").addEventListener("keydown", e => {
+        if (e.key === "Enter") { e.preventDefault(); sendChatMessage(); }
+      });
+
+      /* ============ 初始化 ============ */
+      screens.forEach(screen => { screen.hidden = !screen.classList.contains("active"); });
+      renderSearch("");
+    })();
+  </script>
+</body>
+</html>
